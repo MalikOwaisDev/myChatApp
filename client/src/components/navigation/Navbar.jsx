@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import UserDropdown from './UserDropdown';
+import NotificationBell from '../notifications/NotificationBell';
 
 const Navbar = () => (
   <header className="navbar">
@@ -8,6 +9,7 @@ const Navbar = () => (
       <span className="navbar__brand-name">Real Chat</span>
     </Link>
     <div className="navbar__actions">
+      <NotificationBell />
       <UserDropdown />
     </div>
   </header>

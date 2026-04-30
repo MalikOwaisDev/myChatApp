@@ -116,3 +116,23 @@ Frontend runs on `http://localhost:5173` · Backend API on `http://localhost:500
 - Quick actions panel — Profile link active · Start Chat, Find People, Settings coming soon
 - Stats row — Member Since (real date), Profile status (complete/incomplete), Messages (0 placeholder)
 - `SectionWrapper` reusable layout component for titled sections
+
+---
+
+### Feature 5 — Real-Time Notification System
+
+**Backend** — No REST routes (Socket.io events only)
+
+- Socket.io server attached to the Node HTTP server
+- JWT authentication middleware on every socket connection (`socket.handshake.auth.token`)
+- `socketEmitter` maps `userId → Set<socketId>` for targeted multi-tab delivery
+- Emits `notification` event after profile update (success) and password change (warning)
+
+**Frontend**
+
+- `socket.js` — singleton Socket.io client, `autoConnect: false`, reconnects up to 5×
+- `NotificationContext` — connects on login, disconnects on logout, caps history at 50
+- Each incoming `notification` event appends to panel list **and** fires a toast
+- `NotificationBell` in Navbar — gradient badge for unread count, cleared on panel open
+- `NotificationPanel` — glassmorphism dropdown with scrollable list and "Clear all"
+- `NotificationItem` — colour-coded icon per type (success · error · info · warning) + relative timestamp
