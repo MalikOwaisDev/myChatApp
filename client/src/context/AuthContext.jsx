@@ -54,10 +54,12 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'LOGOUT' });
   };
 
+  const updateUser = (user) => dispatch({ type: 'SET_USER', payload: user });
+
   const setError = (msg) => dispatch({ type: 'SET_ERROR', payload: msg });
 
   return (
-    <AuthContext.Provider value={{ ...state, login, logout, setError, dispatch }}>
+    <AuthContext.Provider value={{ ...state, login, logout, updateUser, setError, dispatch }}>
       {children}
     </AuthContext.Provider>
   );

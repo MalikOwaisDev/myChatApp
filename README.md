@@ -48,3 +48,28 @@ Frontend runs on `http://localhost:5173` · Backend API on `http://localhost:500
 
 - Auth state managed via **React Context** · JWT stored in `localStorage`
 - Protected routes redirect to `/login` if not authenticated
+
+---
+
+### Feature 2 — User Profile Management
+
+**Backend**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/user/profile` | Get authenticated user profile |
+| PUT | `/api/user/profile` | Update name, username, and profile image |
+| PUT | `/api/user/change-password` | Change password (requires current password) |
+
+- Profile image stored as **Base64** · max **1MB** · JPEG, PNG, WebP, GIF supported
+- Username uniqueness enforced at service + DB level · no spaces · alphanumeric, dots, hyphens only
+- Old password verified before allowing password change · new password must differ
+
+**Frontend**
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/profile` | Profile | Edit name, username, avatar · change password |
+
+- Profile updates sync to global **Auth Context** immediately
+- Avatar upload with live preview via FileReader API · camera overlay on hover
