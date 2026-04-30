@@ -1,0 +1,58 @@
+@use 'variables' as v;
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin focus-ring($color: v.$color-border-focus, $shadow: v.$shadow-input-focus) {
+  border-color: $color;
+  box-shadow: $shadow;
+  background: v.$color-bg-input-focus;
+}
+
+@mixin respond-to($bp) {
+  @if $bp == sm    { @media (max-width: v.$bp-sm)  { @content; } }
+  @else if $bp == md { @media (max-width: v.$bp-md) { @content; } }
+}
+
+@mixin truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@mixin glass {
+  background: v.$color-bg-surface;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+@mixin gradient-text {
+  background: v.$gradient-primary;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@mixin spinner($size: 18px, $border: 2px, $color: #fff) {
+  display: inline-block;
+  width: $size;
+  height: $size;
+  border: $border solid rgba($color, 0.25);
+  border-top-color: $color;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
