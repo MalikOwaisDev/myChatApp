@@ -4,7 +4,18 @@
 
 // ─── Base ─────────────────────────────────────────────────────────────────────
 @use './base/reset';
+@use './base/typography';
+
+// ─── Layout ───────────────────────────────────────────────────────────────────
+@use './layout/layout';
 
 // ─── Components ───────────────────────────────────────────────────────────────
 @use './components/auth';
 @use './components/profile';
+@use './components/navbar';
+@use './components/button';
+@use './components/modal';
+@use './components/toast';
+
+// ─── Pages ────────────────────────────────────────────────────────────────────
+@use './pages/pages';

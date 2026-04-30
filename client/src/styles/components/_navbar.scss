@@ -1,0 +1,153 @@
+@use '../abstracts/variables' as v;
+@use '../abstracts/mixins' as m;
+
+// ─── Navbar ───────────────────────────────────────────────────────────────────
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--navbar-height, 60px);
+  background: rgba(6, 8, 24, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  @include m.flex-between;
+  padding: 0 v.$spacing-2xl;
+
+  @include m.respond-to(sm) {
+    padding: 0 v.$spacing-md;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-sm;
+    text-decoration: none;
+
+    &-icon {
+      font-size: 1.25rem;
+      @include m.gradient-text;
+    }
+
+    &-name {
+      font-size: v.$font-size-base;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      @include m.gradient-text;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-md;
+  }
+}
+
+// ─── User Dropdown ────────────────────────────────────────────────────────────
+.user-dropdown {
+  position: relative;
+
+  &__trigger {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: v.$gradient-primary;
+    padding: 2px;
+    cursor: pointer;
+    transition: box-shadow v.$transition-fast;
+    flex-shrink: 0;
+
+    &:hover, &:focus-visible {
+      box-shadow: 0 0 0 3px v.$color-primary-ring;
+    }
+  }
+
+  &__avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__avatar-initials {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(15, 20, 40, 0.9);
+    @include m.flex-center;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: v.$color-text-heading;
+    letter-spacing: 0.03em;
+  }
+
+  &__menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    width: 210px;
+    background: rgba(10, 14, 32, 0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-lg;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.03);
+    overflow: hidden;
+    animation: dropdownIn 0.15s ease;
+  }
+
+  &__info {
+    padding: v.$spacing-md;
+    border-bottom: 1px solid v.$color-border;
+  }
+
+  &__name {
+    font-size: v.$font-size-sm;
+    font-weight: 600;
+    color: v.$color-text-heading;
+    @include m.truncate;
+  }
+
+  &__email {
+    font-size: v.$font-size-xs;
+    color: v.$color-text-muted;
+    @include m.truncate;
+    margin-top: 2px;
+  }
+
+  &__item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.65rem v.$spacing-md;
+    font-size: v.$font-size-sm;
+    font-weight: 500;
+    color: v.$color-text-body;
+    text-decoration: none;
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background v.$transition-fast, color v.$transition-fast;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: v.$color-text-heading;
+    }
+
+    &--danger {
+      color: v.$color-error;
+      &:hover {
+        background: rgba(248, 113, 113, 0.08);
+        color: v.$color-error;
+      }
+    }
+  }
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

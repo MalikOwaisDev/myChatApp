@@ -73,3 +73,24 @@ Frontend runs on `http://localhost:5173` · Backend API on `http://localhost:500
 
 - Profile updates sync to global **Auth Context** immediately
 - Avatar upload with live preview via FileReader API · camera overlay on hover
+
+---
+
+### Feature 3 — Global Layout & UI System
+
+**Backend** — No new routes (uses existing `/api/auth/me` for session restore)
+
+**Frontend**
+
+| Route | Page | Notes |
+|-------|------|-------|
+| `/*` (authenticated) | AppLayout + Navbar | Sticky nav · user dropdown · sign out |
+| `*` | NotFound | 404 fallback page |
+
+- `AppLayout` wraps all authenticated pages — sticky Navbar + Toast outlet via `<Outlet />`
+- `ProtectedRoute` / `PublicRoute` use React Router v6 nested route pattern
+- `UIContext` provides global `showToast(message, type)` — success, error, info, warning
+- `Button` component: primary, secondary, ghost, danger variants · sm / md / lg sizes
+- `Modal` component: portal-based · Escape to close · backdrop click to close
+- SCSS modules added: `_layout`, `_navbar`, `_button`, `_modal`, `_toast`, `_pages`, `_typography`
+- CSS custom property `--navbar-height: 60px` used across pages for precise layout sizing

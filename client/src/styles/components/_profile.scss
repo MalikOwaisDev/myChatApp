@@ -3,8 +3,7 @@
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 .profile-wrapper {
-  min-height: 100vh;
-  background: v.$gradient-bg;
+  min-height: calc(100vh - var(--navbar-height, 60px));
   padding: v.$spacing-xl;
   position: relative;
   overflow-x: hidden;
@@ -53,38 +52,6 @@
   max-width: 900px;
   margin: 0 auto;
   padding-bottom: v.$spacing-3xl;
-}
-
-// ─── Nav ──────────────────────────────────────────────────────────────────────
-.profile-nav {
-  @include m.flex-between;
-  margin-bottom: v.$spacing-2xl;
-
-  &__back {
-    color: v.$color-text-link;
-    text-decoration: none;
-    font-size: v.$font-size-sm;
-    font-weight: 500;
-    transition: color v.$transition-fast;
-    &:hover { color: v.$color-text-link-hover; }
-  }
-
-  &__logout {
-    background: transparent;
-    border: 1px solid v.$color-border;
-    color: v.$color-text-muted;
-    padding: 0.4rem v.$spacing-md;
-    border-radius: v.$radius-md;
-    font-size: v.$font-size-sm;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all v.$transition-fast;
-
-    &:hover {
-      border-color: rgba(248, 113, 113, 0.4);
-      color: v.$color-error;
-    }
-  }
 }
 
 // ─── Header ───────────────────────────────────────────────────────────────────

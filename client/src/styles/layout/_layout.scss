@@ -1,0 +1,40 @@
+@use '../abstracts/variables' as v;
+@use '../abstracts/mixins' as m;
+
+:root {
+  --navbar-height: 60px;
+}
+
+// ─── App Shell ────────────────────────────────────────────────────────────────
+.app-layout {
+  min-height: 100vh;
+  background: v.$gradient-bg;
+  display: flex;
+  flex-direction: column;
+
+  &__main {
+    flex: 1;
+    position: relative;
+  }
+}
+
+// ─── Full-page Loader (ProtectedRoute) ────────────────────────────────────────
+.full-loader {
+  @include m.flex-center;
+  height: 100vh;
+  background: v.$color-bg-deep;
+}
+
+// ─── Content Container ────────────────────────────────────────────────────────
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 v.$spacing-xl;
+
+  &--narrow { max-width: 800px; }
+  &--wide   { max-width: 1440px; }
+
+  @include m.respond-to(sm) {
+    padding: 0 v.$spacing-md;
+  }
+}

@@ -1,0 +1,57 @@
+@use '../abstracts/variables' as v;
+@use '../abstracts/mixins' as m;
+
+.btn {
+  @include m.flex-center;
+  gap: v.$spacing-sm;
+  font-family: inherit;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border: none;
+  border-radius: v.$radius-md;
+  cursor: pointer;
+  transition: opacity v.$transition-base, box-shadow v.$transition-base, transform v.$transition-fast, background v.$transition-base;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  &:active:not(:disabled) { transform: scale(0.98); }
+
+  // ── Sizes ──────────────────────────────────────────────────────────────────
+  &--sm  { font-size: v.$font-size-sm;  padding: 0.4rem 0.9rem; border-radius: v.$radius-sm; }
+  &--md  { font-size: v.$font-size-base; padding: 0.65rem 1.25rem; }
+  &--lg  { font-size: v.$font-size-lg;  padding: 0.85rem 1.75rem; border-radius: v.$radius-lg; }
+
+  // ── Variants ───────────────────────────────────────────────────────────────
+  &--primary {
+    background: v.$gradient-primary;
+    color: #fff;
+    box-shadow: v.$shadow-btn;
+    &:hover:not(:disabled) { box-shadow: v.$shadow-btn-hover; opacity: 0.92; }
+  }
+
+  &--secondary {
+    background: rgba(255, 255, 255, 0.06);
+    color: v.$color-text-body;
+    border: 1px solid v.$color-border;
+    &:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); color: v.$color-text-heading; }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: v.$color-text-link;
+    &:hover:not(:disabled) { color: v.$color-text-link-hover; }
+  }
+
+  &--danger {
+    background: rgba(248, 113, 113, 0.1);
+    color: v.$color-error;
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    &:hover:not(:disabled) { background: rgba(248, 113, 113, 0.18); }
+  }
+}

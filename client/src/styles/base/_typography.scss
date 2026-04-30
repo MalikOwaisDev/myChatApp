@@ -1,0 +1,23 @@
+@use '../abstracts/variables' as v;
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: v.$font-family-base;
+  color: v.$color-text-body;
+  background: v.$color-bg-deep;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+p { margin: 0; }
+
+a { text-decoration: none; }
+
+button { font-family: inherit; }

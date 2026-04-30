@@ -1,0 +1,68 @@
+@use '../abstracts/variables' as v;
+@use '../abstracts/mixins' as m;
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(6, 8, 24, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  @include m.flex-center;
+  padding: v.$spacing-xl;
+  animation: overlayIn 0.2s ease;
+}
+
+.modal {
+  background: rgba(10, 14, 32, 0.98);
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-xl;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  width: 100%;
+  max-width: 480px;
+  animation: modalIn 0.25s ease;
+
+  &__header {
+    @include m.flex-between;
+    padding: v.$spacing-xl v.$spacing-2xl;
+    border-bottom: 1px solid v.$color-border;
+  }
+
+  &__title {
+    font-size: v.$font-size-lg;
+    font-weight: 700;
+    @include m.gradient-text;
+  }
+
+  &__close {
+    color: v.$color-text-muted;
+    transition: color v.$transition-fast;
+    padding: 0.25rem;
+    display: flex;
+
+    svg { width: 18px; height: 18px; }
+    &:hover { color: v.$color-text-heading; }
+  }
+
+  &__body {
+    padding: v.$spacing-2xl;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: v.$spacing-sm;
+    padding: v.$spacing-lg v.$spacing-2xl;
+    border-top: 1px solid v.$color-border;
+  }
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(-8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
