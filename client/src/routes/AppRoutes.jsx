@@ -8,6 +8,7 @@ import ForgotPassword from '../pages/ForgotPassword';
 import ResetPassword from '../pages/ResetPassword';
 import Dashboard from '../pages/Dashboard';
 import Profile from '../pages/Profile';
+import Search from '../pages/Search';
 import NotFound from '../pages/NotFound';
 
 const AppRoutes = () => (
@@ -27,6 +28,7 @@ const AppRoutes = () => (
       <Route element={<AppLayout />}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/search" element={<Search />} />
       </Route>
     </Route>
 

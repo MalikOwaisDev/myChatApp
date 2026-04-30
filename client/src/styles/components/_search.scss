@@ -1,0 +1,300 @@
+@use "../abstracts/variables" as v;
+@use "../abstracts/mixins" as m;
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+.search-page {
+  min-height: calc(100vh - var(--navbar-height, 60px));
+  padding: v.$spacing-xl;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.search-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+
+  &--1 {
+    width: 600px;
+    height: 600px;
+    top: -180px;
+    left: -180px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+    animation: sorb1 18s ease-in-out infinite;
+  }
+
+  &--2 {
+    width: 500px;
+    height: 500px;
+    bottom: -150px;
+    right: -150px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.09) 0%, transparent 70%);
+    animation: sorb2 24s ease-in-out infinite;
+  }
+}
+
+@keyframes sorb1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(40px, 40px) scale(1.06); }
+}
+
+@keyframes sorb2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(-30px, -30px) scale(0.96); }
+}
+
+// ─── Container ────────────────────────────────────────────────────────────────
+.search-container {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
+  padding-bottom: v.$spacing-3xl;
+  @include m.flex-col;
+  gap: v.$spacing-xl;
+}
+
+// ─── Header ───────────────────────────────────────────────────────────────────
+.search-header {
+  padding: v.$spacing-2xl 0 v.$spacing-sm;
+
+  &__title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+    @include m.gradient-text;
+  }
+
+  &__sub {
+    font-size: v.$font-size-base;
+    color: v.$color-text-muted;
+    margin-top: v.$spacing-xs;
+    line-height: 1.6;
+  }
+}
+
+// ─── Search Input ─────────────────────────────────────────────────────────────
+.search-input-wrap {
+  position: relative;
+
+  &__icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    pointer-events: none;
+
+    svg {
+      width: 18px;
+      height: 18px;
+      stroke: v.$color-text-muted;
+    }
+  }
+
+  &__field {
+    width: 100%;
+    padding: 1rem 3rem 1rem 2.75rem;
+    @include m.glass;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-xl;
+    color: v.$color-text-heading;
+    font-size: v.$font-size-base;
+    font-family: inherit;
+    outline: none;
+    box-shadow: v.$shadow-card;
+    transition: border-color v.$transition-base, box-shadow v.$transition-base;
+
+    &::placeholder { color: v.$color-text-muted; }
+
+    &:focus {
+      border-color: v.$color-border-focus;
+      box-shadow: v.$shadow-input-focus, v.$shadow-card;
+    }
+  }
+
+  &__clear {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: v.$color-text-muted;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0.2rem 0.3rem;
+    transition: color v.$transition-fast;
+
+    &:hover { color: v.$color-text-heading; }
+  }
+
+  &__spinner {
+    position: absolute;
+    right: 1.1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    @include m.spinner(16px, 2px, v.$color-primary);
+  }
+}
+
+// ─── Hint ─────────────────────────────────────────────────────────────────────
+.search-hint {
+  font-size: v.$font-size-xs;
+  color: v.$color-text-muted;
+  text-align: center;
+  margin-top: -#{v.$spacing-sm};
+}
+
+// ─── Results ──────────────────────────────────────────────────────────────────
+.search-results {
+  @include m.flex-col;
+  gap: v.$spacing-md;
+
+  &__count {
+    font-size: v.$font-size-xs;
+    font-weight: 600;
+    color: v.$color-text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  &__list {
+    @include m.flex-col;
+    gap: v.$spacing-sm;
+  }
+
+  &__error {
+    padding: v.$spacing-md;
+    background: v.$color-error-bg;
+    border: 1px solid v.$color-error-border;
+    border-radius: v.$radius-md;
+    color: v.$color-error;
+    font-size: v.$font-size-sm;
+  }
+}
+
+// ─── User Result Card ─────────────────────────────────────────────────────────
+.user-result-card {
+  @include m.glass;
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-md;
+  padding: v.$spacing-md v.$spacing-lg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  cursor: default;
+  transition: background v.$transition-base, border-color v.$transition-base, transform v.$transition-fast;
+  animation: cardIn 0.2s ease both;
+
+  &:hover {
+    background: rgba(139, 92, 246, 0.06);
+    border-color: rgba(139, 92, 246, 0.2);
+    transform: translateY(-1px);
+  }
+
+  &__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: v.$gradient-primary;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__initials {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(15, 20, 40, 0.9);
+    @include m.flex-center;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: v.$color-text-heading;
+    letter-spacing: -0.02em;
+  }
+
+  &__info {
+    @include m.flex-col;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: v.$font-size-sm;
+    font-weight: 600;
+    color: v.$color-text-heading;
+    @include m.truncate;
+  }
+
+  &__username {
+    font-size: v.$font-size-xs;
+    font-weight: 500;
+    color: v.$color-primary;
+  }
+
+  &__chevron {
+    color: v.$color-text-muted;
+    display: flex;
+    flex-shrink: 0;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+    }
+  }
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ─── Empty State ──────────────────────────────────────────────────────────────
+.empty-state {
+  @include m.flex-center;
+  flex-direction: column;
+  gap: v.$spacing-md;
+  padding: v.$spacing-3xl v.$spacing-xl;
+  text-align: center;
+
+  &__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(139, 92, 246, 0.08);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    @include m.flex-center;
+
+    svg {
+      width: 24px;
+      height: 24px;
+      stroke: v.$color-primary;
+    }
+  }
+
+  &__title {
+    font-size: v.$font-size-base;
+    font-weight: 600;
+    color: v.$color-text-heading;
+  }
+
+  &__sub {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
+    max-width: 300px;
+    line-height: 1.5;
+  }
+}

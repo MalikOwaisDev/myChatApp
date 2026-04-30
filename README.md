@@ -136,3 +136,29 @@ Frontend runs on `http://localhost:5173` · Backend API on `http://localhost:500
 - `NotificationBell` in Navbar — gradient badge for unread count, cleared on panel open
 - `NotificationPanel` — glassmorphism dropdown with scrollable list and "Clear all"
 - `NotificationItem` — colour-coded icon per type (success · error · info · warning) + relative timestamp
+
+---
+
+### Feature 6 — User Search & Discovery
+
+**Backend**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/users/search?query=` | Search users by username *(requires JWT)* |
+
+- Case-insensitive partial match · regex-escaped input prevents ReDoS
+- Excludes the requesting user from results · max 15 results per request
+- In-memory rate limiter: 30 requests / 60 s per user
+
+**Frontend**
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/search` | Search | Real-time user discovery by username |
+
+- 300 ms debounced input via `useDebounce` hook · stale-request cancellation
+- `SearchInput` — full-width glass input with search icon, spinner, and clear button
+- `UserResultCard` — avatar, name, username row with slide-in animation
+- `EmptyState` — shown when query returns no matches
+- "Find People" quick action on Dashboard now links to `/search`

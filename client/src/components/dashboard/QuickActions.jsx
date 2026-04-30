@@ -46,8 +46,9 @@ const actions = [
   {
     label: 'Find People',
     desc: 'Discover other users',
+    to: '/search',
     Icon: PeopleIcon,
-    active: false,
+    active: true,
   },
   {
     label: 'Settings',
