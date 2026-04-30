@@ -94,3 +94,25 @@ Frontend runs on `http://localhost:5173` · Backend API on `http://localhost:500
 - `Modal` component: portal-based · Escape to close · backdrop click to close
 - SCSS modules added: `_layout`, `_navbar`, `_button`, `_modal`, `_toast`, `_pages`, `_typography`
 - CSS custom property `--navbar-height: 60px` used across pages for precise layout sizing
+
+---
+
+### Feature 4 — Dashboard (Authenticated Home)
+
+**Backend**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/dashboard` | Get user + stats summary *(requires JWT)* |
+
+**Frontend**
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/` | Dashboard | Welcome · user card · quick actions · stats |
+
+- Time-based greeting (morning / afternoon / evening) based on local time
+- User card displays avatar, name, username, email, and active badge
+- Quick actions panel — Profile link active · Start Chat, Find People, Settings coming soon
+- Stats row — Member Since (real date), Profile status (complete/incomplete), Messages (0 placeholder)
+- `SectionWrapper` reusable layout component for titled sections
