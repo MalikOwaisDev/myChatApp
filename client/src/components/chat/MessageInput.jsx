@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useChat } from '../../context/ChatContext';
 import socket from '../../socket/socket';
+import MediaUpload from './MediaUpload';
+import MediaPreview from './MediaPreview';
+import UploadLoader from './UploadLoader';
 
 const SendIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -11,7 +14,8 @@ const SendIcon = () => (
 
 const MessageInput = ({ conversationId }) => {
   const [text, setText] = useState('');
-  const { sendMessage } = useChat();
+  const [pendingMedia, setPendingMedia] = useState(null);
+  const { sendMessage, sendMedia, uploading } = useChat();
   const textareaRef = useRef(null);
   const isTypingRef = useRef(false);
   const typingTimerRef = useRef(null);
@@ -24,7 +28,6 @@ const MessageInput = ({ conversationId }) => {
     }
   };
 
-  // Stop typing on conversation change or unmount
   useEffect(() => {
     return () => {
       clearTimeout(typingTimerRef.current);
@@ -55,6 +58,11 @@ const MessageInput = ({ conversationId }) => {
   };
 
   const handleSend = () => {
+    if (pendingMedia) {
+      sendMedia(conversationId, pendingMedia.data);
+      setPendingMedia(null);
+      return;
+    }
     const trimmed = text.trim();
     if (!trimmed || trimmed.length > 2000) return;
     stopTyping();
@@ -70,28 +78,45 @@ const MessageInput = ({ conversationId }) => {
     }
   };
 
+  const handleMedia = (base64) => {
+    setPendingMedia({ data: base64 });
+  };
+
+  const canSend = pendingMedia ? !uploading : text.trim().length > 0;
+
   return (
-    <div className="msg-input">
-      <textarea
-        ref={textareaRef}
-        className="msg-input__field"
-        placeholder="Type a message… (Enter to send)"
-        value={text}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        rows={1}
-        maxLength={2000}
-      />
-      <button
-        className={`msg-input__send${text.trim() ? ' msg-input__send--active' : ''}`}
-        onClick={handleSend}
-        disabled={!text.trim()}
-        aria-label="Send message"
-        type="button"
-      >
-        <SendIcon />
-      </button>
-    </div>
+    <>
+      {pendingMedia && (
+        <MediaPreview src={pendingMedia.data} onRemove={() => setPendingMedia(null)} />
+      )}
+      <div className="msg-input">
+        <MediaUpload onMedia={handleMedia} disabled={uploading || !!pendingMedia} />
+        <textarea
+          ref={textareaRef}
+          className="msg-input__field"
+          placeholder={pendingMedia ? 'Image ready to send…' : 'Type a message… (Enter to send)'}
+          value={text}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          rows={1}
+          maxLength={2000}
+          disabled={!!pendingMedia}
+        />
+        {uploading ? (
+          <UploadLoader />
+        ) : (
+          <button
+            className={`msg-input__send${canSend ? ' msg-input__send--active' : ''}`}
+            onClick={handleSend}
+            disabled={!canSend}
+            aria-label="Send message"
+            type="button"
+          >
+            <SendIcon />
+          </button>
+        )}
+      </div>
+    </>
   );
 };
 

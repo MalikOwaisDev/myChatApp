@@ -271,3 +271,43 @@ Frontend runs on `http://localhost:5173` · Backend API on `http://localhost:500
 - Tick SVGs: custom inline paths — single checkmark `(1→4→11)`, double checkmark offset by 4px on x-axis
 - Status is never shown on received messages (only on `isMine` bubbles)
 - Existing messages loaded via REST already carry their DB `status`, so historical ticks render correctly on page load
+
+---
+
+### Feature 10 — Media & File Sharing + Chat-Aware Notifications
+
+**Backend** — 5 new files, 4 modified
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/messages/media` | Send an image message *(requires JWT, participant only)* |
+
+- `Message` model extended with `media` (Base64 string), `mediaType` (`image/jpeg` · `image/png` · `image/webp` · `image/gif`), and `messageType` enum extended to include `'media'`; `text` field made optional (either `text` or `media` present)
+- `fileValidation.middleware.js` — validates Base64 data URL via existing `validateBase64Image` util (type + 1 MB size check), extracts `mediaType` from the data URL prefix and attaches to `req.mediaType`
+- `mediaMessage.service.js` — `createMediaMessage`: persists message with `messageType: 'media'`, atomically updates `Conversation.lastMessage`
+- `mediaMessage.controller.js` — validates conversation membership inline, calls service, emits `receive_message` to all participants via `emitToUser` (reuses same event as text messages — `messageType` field distinguishes rendering)
+- `mediaMessage.routes.js` — `POST /`, mounted at `/api/messages/media` **before** the dynamic `/:conversationId` routes
+- `media.handler.js` — socket handler: listens to `send_media` client event as a lower-latency alternative to the REST path; validates, persists, emits `receive_message` to participants
+- `conversation.controller.js` — `lastMessage` populate select extended with `messageType` so the sidebar can display "📷 Photo" for media last messages
+- JSON body limit stays at **5 MB** (sufficient for 1 MB images after Base64 ~33 % overhead)
+
+**Socket events**
+
+| Direction | Event | Payload | Description |
+|-----------|-------|---------|-------------|
+| client → server | `send_media` | `{ conversationId, media }` | Socket path for sending media (alternative to REST) |
+| server → client | `receive_message` | `{ ..., media, mediaType, messageType: 'media' }` | Reuses existing event; all participants receive the media message |
+
+**Frontend**
+
+- `media.service.js` — `sendMediaApi(conversationId, media)`: `POST /messages/media` with Base64 payload
+- `MediaUpload` — hidden `<input type="file">` behind a clip-icon button; accepts JPEG · PNG · WebP · GIF; reads via `FileReader` → Base64 data URL; passes result to parent via `onMedia` callback
+- `MediaPreview` — thumbnail preview (110 × 110 px, object-fit cover) with an absolute × dismiss button; shown above the input row after a file is selected
+- `UploadLoader` — three bouncing dots (reuses `typingDot` animation) rendered in place of the send button while uploading
+- `MediaMessageBubble` — renders `<img>` (max 260 px tall, contain) inside the standard bubble shell; same `__footer` / `MessageStatus` tick logic as text bubbles; `isMine` styling identical to `MessageBubble`
+- `MessageInput` — extended: `MediaUpload` button left of the textarea; `MediaPreview` fragment above the input row; send handler branches on `pendingMedia` → calls `sendMedia`; textarea disabled while image is staged; `UploadLoader` replaces send button while `uploading`
+- `MessageList` — routes each message to `MediaMessageBubble` or `MessageBubble` based on `msg.messageType`
+- `ConversationItem` — last-message preview shows **📷 Photo** when `lastMessage.messageType === 'media'`
+- `ChatContext` — `sendMedia(conversationId, media)`: calls REST, sets `uploading` flag, shows error toast on failure; `receive_message` socket handler unchanged — media messages enter the same deduplication + unread-count + mark-delivered flow as text messages
+- `NotificationContext` — `handleReceiveMessage` now produces "sent you a photo" text for `messageType === 'media'` entries in the notification panel
+- Chat-aware notification logic unchanged: active-conversation messages suppress the toast; inactive-conversation messages show toast + increment unread badge

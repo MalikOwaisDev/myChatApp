@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
 import MessageBubble from './MessageBubble';
+import MediaMessageBubble from './MediaMessageBubble';
 
 const MessageList = ({ conversationId }) => {
   const { user } = useAuth();
@@ -48,13 +49,14 @@ const MessageList = ({ conversationId }) => {
           <p>No messages yet. Say hello!</p>
         </div>
       ) : (
-        msgs.map((msg) => (
-          <MessageBubble
-            key={msg._id}
-            message={msg}
-            isMine={user?.id && String(msg.senderId) === String(user.id)}
-          />
-        ))
+        msgs.map((msg) => {
+          const isMine = !!(user?.id && String(msg.senderId) === String(user.id));
+          return msg.messageType === 'media' ? (
+            <MediaMessageBubble key={msg._id} message={msg} isMine={isMine} />
+          ) : (
+            <MessageBubble key={msg._id} message={msg} isMine={isMine} />
+          );
+        })
       )}
 
       <div ref={bottomRef} />

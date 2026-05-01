@@ -39,10 +39,11 @@ export const NotificationProvider = ({ children }) => {
       const senderId = String(message.senderId);
       if (myIdRef.current && senderId === myIdRef.current) return;
 
+      const isMedia = message.messageType === 'media';
       const entry = {
         id: `msg_${message._id}`,
         type: 'message',
-        message: `${message.senderName || 'Someone'} sent you a message`,
+        message: `${message.senderName || 'Someone'} ${isMedia ? 'sent you a photo' : 'sent you a message'}`,
         conversationId: String(message.conversationId),
         timestamp: message.createdAt,
       };

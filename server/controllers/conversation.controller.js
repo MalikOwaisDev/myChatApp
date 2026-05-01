@@ -26,7 +26,7 @@ const createOrGetConversation = asyncHandler(async (req, res) => {
   const existing = await Conversation.findOne({
     participants: { $all: [req.user.id, participantId], $size: 2 },
   }).populate('participants', 'name username profileImage')
-    .populate({ path: 'lastMessage', select: 'text senderId createdAt' });
+    .populate({ path: 'lastMessage', select: 'text messageType senderId createdAt' });
 
   if (existing) {
     return res.json(existing);
@@ -38,7 +38,7 @@ const createOrGetConversation = asyncHandler(async (req, res) => {
 
   const populated = await Conversation.findById(conversation._id)
     .populate('participants', 'name username profileImage')
-    .populate({ path: 'lastMessage', select: 'text senderId createdAt' });
+    .populate({ path: 'lastMessage', select: 'text messageType senderId createdAt' });
 
   res.status(201).json(populated);
 });
@@ -49,7 +49,7 @@ const getUserConversations = asyncHandler(async (req, res) => {
   })
     .sort({ updatedAt: -1 })
     .populate('participants', 'name username profileImage')
-    .populate({ path: 'lastMessage', select: 'text senderId createdAt' });
+    .populate({ path: 'lastMessage', select: 'text messageType senderId createdAt' });
 
   res.json(conversations);
 });
@@ -57,7 +57,7 @@ const getUserConversations = asyncHandler(async (req, res) => {
 const getConversationById = asyncHandler(async (req, res) => {
   const conversation = await Conversation.findById(req.conversation._id)
     .populate('participants', 'name username profileImage')
-    .populate({ path: 'lastMessage', select: 'text senderId createdAt' });
+    .populate({ path: 'lastMessage', select: 'text messageType senderId createdAt' });
 
   res.json(conversation);
 });

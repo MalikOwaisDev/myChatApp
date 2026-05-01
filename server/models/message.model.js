@@ -14,13 +14,19 @@ const messageSchema = new mongoose.Schema(
     },
     text: {
       type: String,
-      required: true,
       trim: true,
       maxlength: [2000, 'Message cannot exceed 2000 characters'],
     },
+    media: {
+      type: String,
+    },
+    mediaType: {
+      type: String,
+      enum: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+    },
     messageType: {
       type: String,
-      enum: ['text'],
+      enum: ['text', 'media'],
       default: 'text',
     },
     status: {

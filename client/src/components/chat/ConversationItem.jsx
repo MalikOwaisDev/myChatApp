@@ -31,11 +31,13 @@ const ConversationItem = ({ conversation, isActive, unreadCount, onClick }) => {
   const isOnline = other ? !!onlineUsers[String(other._id)] : false;
 
   const lastMsg = conversation.lastMessage;
-  const preview = lastMsg?.text
-    ? lastMsg.text.length > 40
-      ? lastMsg.text.slice(0, 40) + '…'
-      : lastMsg.text
-    : 'No messages yet';
+  const preview = lastMsg?.messageType === 'media'
+    ? '📷 Photo'
+    : lastMsg?.text
+      ? lastMsg.text.length > 40
+        ? lastMsg.text.slice(0, 40) + '…'
+        : lastMsg.text
+      : 'No messages yet';
 
   const time = lastMsg?.createdAt
     ? new Date(lastMsg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })

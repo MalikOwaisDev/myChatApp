@@ -8,6 +8,7 @@ import {
   createOrGetConversationApi,
 } from '../services/conversation.service';
 import { getMessagesApi, markDeliveredApi, markSeenApi } from '../services/message.service';
+import { sendMediaApi } from '../services/media.service';
 
 const ChatContext = createContext(null);
 
@@ -26,6 +27,7 @@ export const ChatProvider = ({ children }) => {
   const [unreadCounts, setUnreadCounts] = useState({});
   const [onlineUsers, setOnlineUsers] = useState({});
   const [typingUsers, setTypingUsers] = useState({});
+  const [uploading, setUploading] = useState(false);
 
   const activeConvIdRef = useRef(activeConversationId);
   useEffect(() => { activeConvIdRef.current = activeConversationId; }, [activeConversationId]);
@@ -242,6 +244,18 @@ export const ChatProvider = ({ children }) => {
     socket.emit('send_message', { conversationId, text });
   }, []);
 
+  const sendMedia = useCallback(async (conversationId, media) => {
+    setUploading(true);
+    try {
+      await sendMediaApi(conversationId, media);
+      // receive_message socket event delivers the saved message to all participants
+    } catch {
+      showToast('Failed to send image', 'error');
+    } finally {
+      setUploading(false);
+    }
+  }, [showToast]);
+
   const getOtherParticipant = useCallback(
     (conversation) => {
       if (!myId || !conversation?.participants) return null;
@@ -263,6 +277,8 @@ export const ChatProvider = ({ children }) => {
         openConversation,
         startConversation,
         sendMessage,
+        sendMedia,
+        uploading,
         loadEarlierMessages,
         getOtherParticipant,
         messagePages,

@@ -10,6 +10,7 @@ const userSearchRoutes = require('./routes/userSearch.routes');
 const conversationRoutes = require('./routes/conversation.routes');
 const messageRoutes = require('./routes/message.routes');
 const messageStatusRoutes = require('./routes/messageStatus.routes');
+const mediaMessageRoutes = require('./routes/mediaMessage.routes');
 const initSocket = require('./sockets');
 const { errorHandler } = require('./middleware/error.middleware');
 
@@ -28,7 +29,8 @@ app.use('/api/user', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/users', userSearchRoutes);
 app.use('/api/conversations', conversationRoutes);
-app.use('/api/messages', messageStatusRoutes);  // PUT /delivered, PUT /seen — before dynamic routes
+app.use('/api/messages', messageStatusRoutes);    // PUT /delivered, PUT /seen — before dynamic routes
+app.use('/api/messages/media', mediaMessageRoutes); // POST /media — before :conversationId routes
 app.use('/api/messages', messageRoutes);
 
 app.use(errorHandler);

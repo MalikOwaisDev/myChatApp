@@ -515,6 +515,41 @@
   }
 }
 
+// ─── Media Preview (above input) ─────────────────────────────────────────────
+.media-preview {
+  position: relative;
+  display: inline-flex;
+  padding: v.$spacing-sm v.$spacing-xl;
+  border-top: 1px solid v.$color-border;
+
+  &__img {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: v.$radius-md;
+    display: block;
+    border: 1px solid v.$color-border;
+  }
+
+  &__remove {
+    position: absolute;
+    top: calc(v.$spacing-xs + 2px);
+    left: calc(v.$spacing-xl + 88px);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.65);
+    border: none;
+    color: #fff;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    @include m.flex-center;
+
+    &:hover { background: rgba(0, 0, 0, 0.85); }
+  }
+}
+
 // ─── Message Input ────────────────────────────────────────────────────────────
 .msg-input {
   display: flex;
@@ -584,6 +619,74 @@
 
     &:disabled { cursor: not-allowed; }
   }
+}
+
+// ─── Media Upload Button ─────────────────────────────────────────────────────
+.msg-input__media-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(139, 92, 246, 0.08);
+  color: v.$color-text-muted;
+  @include m.flex-center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background v.$transition-fast, color v.$transition-fast;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    display: block;
+  }
+
+  &:hover:not(:disabled) {
+    background: rgba(139, 92, 246, 0.15);
+    color: v.$color-primary;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+// ─── Upload Loader ────────────────────────────────────────────────────────────
+.upload-loader {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.12);
+  @include m.flex-center;
+  gap: 3px;
+  flex-shrink: 0;
+
+  &__dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: v.$color-primary;
+    animation: typingDot 1.2s ease infinite;
+
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.4s; }
+  }
+}
+
+// ─── Media Message Image ──────────────────────────────────────────────────────
+.msg-bubble--media {
+  padding-bottom: v.$spacing-xs;
+}
+
+.msg-media__img {
+  max-width: 100%;
+  max-height: 260px;
+  width: auto;
+  border-radius: v.$radius-md;
+  display: block;
+  object-fit: contain;
+  margin-bottom: v.$spacing-xs;
 }
 
 // ─── Online Status Dot ────────────────────────────────────────────────────────
