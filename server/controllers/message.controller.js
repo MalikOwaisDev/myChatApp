@@ -1,5 +1,6 @@
 const asyncHandler = require('../utils/asyncHandler');
 const messageService = require('../services/message.service');
+const paginationService = require('../services/pagination.service');
 const { emitToUser } = require('../utils/socketEmitter');
 
 const sendMessage = asyncHandler(async (req, res) => {
@@ -37,12 +38,17 @@ const sendMessage = asyncHandler(async (req, res) => {
 });
 
 const getMessages = asyncHandler(async (req, res) => {
-  const page = Math.max(1, parseInt(req.query.page) || 1);
   const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 30));
+  const cursor = req.query.cursor || null;
 
-  const messages = await messageService.getMessages(req.conversation._id, req.user.id, page, limit);
+  const result = await paginationService.getPagedMessages(
+    req.conversation._id,
+    req.user.id,
+    cursor,
+    limit
+  );
 
-  res.json(messages);
+  res.json(result);
 });
 
 module.exports = { sendMessage, getMessages };

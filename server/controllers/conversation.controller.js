@@ -32,7 +32,7 @@ const createOrGetConversation = asyncHandler(async (req, res) => {
     { $pull: { deletedFor: req.user.id } },
     { new: true }
   )
-    .populate(PARTICIPANT_SELECT)
+    .populate('participants', PARTICIPANT_SELECT)
     .populate({ path: 'lastMessage', select: LAST_MSG_SELECT });
 
   if (existing) {
@@ -44,7 +44,7 @@ const createOrGetConversation = asyncHandler(async (req, res) => {
   });
 
   const populated = await Conversation.findById(conversation._id)
-    .populate(PARTICIPANT_SELECT)
+    .populate('participants', PARTICIPANT_SELECT)
     .populate({ path: 'lastMessage', select: LAST_MSG_SELECT });
 
   res.status(201).json(populated);
@@ -56,7 +56,7 @@ const getUserConversations = asyncHandler(async (req, res) => {
     deletedFor: { $nin: [req.user.id] },
   })
     .sort({ updatedAt: -1 })
-    .populate(PARTICIPANT_SELECT)
+    .populate('participants', PARTICIPANT_SELECT)
     .populate({ path: 'lastMessage', select: LAST_MSG_SELECT });
 
   res.json(conversations);
@@ -64,7 +64,7 @@ const getUserConversations = asyncHandler(async (req, res) => {
 
 const getConversationById = asyncHandler(async (req, res) => {
   const conversation = await Conversation.findById(req.conversation._id)
-    .populate(PARTICIPANT_SELECT)
+    .populate('participants', PARTICIPANT_SELECT)
     .populate({ path: 'lastMessage', select: LAST_MSG_SELECT });
 
   res.json(conversation);

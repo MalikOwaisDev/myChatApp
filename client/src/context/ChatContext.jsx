@@ -31,7 +31,8 @@ export const ChatProvider = ({ children }) => {
   const [activeConversationId, setActiveConversationId] = useState(null);
   const [loadingConversations, setLoadingConversations] = useState(false);
   const [loadingMessages, setLoadingMessages] = useState(false);
-  const [messagePages, setMessagePages] = useState({});
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMoreMessages, setHasMoreMessages] = useState({});
   const [unreadCounts, setUnreadCounts] = useState({});
   const [onlineUsers, setOnlineUsers] = useState({});
   const [typingUsers, setTypingUsers] = useState({});
@@ -59,22 +60,32 @@ export const ChatProvider = ({ children }) => {
     }
   }, [token]);
 
-  const loadMessages = useCallback(async (conversationId, page = 1) => {
-    setLoadingMessages(true);
+  // cursor = null means initial load; cursor = message _id means load older
+  const loadMessages = useCallback(async (conversationId, cursor = null) => {
+    if (cursor) {
+      setLoadingMore(true);
+    } else {
+      setLoadingMessages(true);
+    }
     try {
-      const { data } = await getMessagesApi(conversationId, page);
+      const { data } = await getMessagesApi(conversationId, cursor);
+      // data: { messages, hasMore, nextCursor }
       setMessages((prev) => {
         const existing = prev[conversationId] || [];
-        if (page === 1) return { ...prev, [conversationId]: data };
+        if (!cursor) return { ...prev, [conversationId]: data.messages };
         const existingIds = new Set(existing.map((m) => String(m._id)));
-        const newMsgs = data.filter((m) => !existingIds.has(String(m._id)));
+        const newMsgs = data.messages.filter((m) => !existingIds.has(String(m._id)));
         return { ...prev, [conversationId]: [...newMsgs, ...existing] };
       });
-      setMessagePages((prev) => ({ ...prev, [conversationId]: page }));
+      setHasMoreMessages((prev) => ({ ...prev, [conversationId]: data.hasMore }));
     } catch {
       // silently fail
     } finally {
-      setLoadingMessages(false);
+      if (cursor) {
+        setLoadingMore(false);
+      } else {
+        setLoadingMessages(false);
+      }
     }
   }, []);
 
@@ -82,7 +93,7 @@ export const ChatProvider = ({ children }) => {
     setActiveConversationId(conversationId);
     setUnreadCounts((prev) => ({ ...prev, [conversationId]: 0 }));
     if (!messages[conversationId]) {
-      await loadMessages(conversationId, 1);
+      await loadMessages(conversationId);
     }
     markSeenApi(conversationId).catch(() => {});
     navigate(`/chat/${conversationId}`);
@@ -98,9 +109,11 @@ export const ChatProvider = ({ children }) => {
   }, [openConversation]);
 
   const loadEarlierMessages = useCallback(async (conversationId) => {
-    const currentPage = messagePages[conversationId] || 1;
-    await loadMessages(conversationId, currentPage + 1);
-  }, [messagePages, loadMessages]);
+    const msgs = messages[conversationId] || [];
+    if (msgs.length === 0) return;
+    const cursor = String(msgs[0]._id);
+    await loadMessages(conversationId, cursor);
+  }, [messages, loadMessages]);
 
   // ─── Conversation management actions ───────────────────────────────────────
   const muteConversation = useCallback(async (conversationId) => {
@@ -133,12 +146,18 @@ export const ChatProvider = ({ children }) => {
       delete next[conversationId];
       return next;
     });
+    setHasMoreMessages((prev) => {
+      const next = { ...prev };
+      delete next[conversationId];
+      return next;
+    });
     setActiveConversationId(null);
   }, []);
 
   const clearMessages = useCallback(async (conversationId) => {
     await clearMessagesApi(conversationId);
     setMessages((prev) => ({ ...prev, [conversationId]: [] }));
+    setHasMoreMessages((prev) => ({ ...prev, [conversationId]: false }));
   }, []);
 
   useEffect(() => {
@@ -147,6 +166,7 @@ export const ChatProvider = ({ children }) => {
       setConversations([]);
       setMessages({});
       setActiveConversationId(null);
+      setHasMoreMessages({});
       setOnlineUsers({});
       setTypingUsers({});
     }
@@ -191,7 +211,6 @@ export const ChatProvider = ({ children }) => {
         } else {
           setUnreadCounts((prev) => ({ ...prev, [convId]: (prev[convId] || 0) + 1 }));
 
-          // Suppress toast if global notifications are off OR conversation is muted
           const conv = conversationsRef.current.find((c) => String(c._id) === convId);
           const isMuted = conv?.mutedBy?.some((id) => String(id) === currentMyId);
           if (!isMuted && settingsRef.current?.notificationsEnabled !== false) {
@@ -322,6 +341,8 @@ export const ChatProvider = ({ children }) => {
         activeConversationId,
         loadingConversations,
         loadingMessages,
+        loadingMore,
+        hasMoreMessages,
         loadConversations,
         loadMessages,
         openConversation,
@@ -331,7 +352,6 @@ export const ChatProvider = ({ children }) => {
         uploading,
         loadEarlierMessages,
         getOtherParticipant,
-        messagePages,
         unreadCounts,
         onlineUsers,
         typingUsers,

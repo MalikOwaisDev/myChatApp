@@ -886,3 +886,35 @@
   0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
   30% { transform: translateY(-4px); opacity: 1; }
 }
+
+// ─── Infinite Scroll Sentinel ─────────────────────────────────────────────────
+.infinite-scroll-trigger {
+  height: 1px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+// ─── Message Pagination Loader (skeleton rows for older messages) ─────────────
+.msg-pagination-loader {
+  @include m.flex-col;
+  gap: v.$spacing-sm;
+  padding: v.$spacing-md v.$spacing-xl;
+
+  &__item {
+    height: 36px;
+    border-radius: v.$radius-lg;
+    background: rgba(255, 255, 255, 0.05);
+    width: 55%;
+    animation: skeletonPulse 1.4s ease infinite;
+
+    &--right {
+      align-self: flex-end;
+      width: 45%;
+    }
+  }
+}
+
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}

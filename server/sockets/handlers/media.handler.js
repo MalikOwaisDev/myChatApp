@@ -5,9 +5,27 @@ const { createMediaMessage } = require('../../services/mediaMessage.service');
 const { emitToUser } = require('../../utils/socketEmitter');
 const { validateBase64Image } = require('../../utils/image.util');
 
+const createSocketRateLimit = (max = 20, windowMs = 60_000) => {
+  let timestamps = [];
+  return () => {
+    const now = Date.now();
+    timestamps = timestamps.filter((t) => now - t < windowMs);
+    if (timestamps.length >= max) return false;
+    timestamps.push(now);
+    return true;
+  };
+};
+
 const mediaHandler = (io, socket) => {
+  const checkRateLimit = createSocketRateLimit(20, 60_000);
+
   socket.on('send_media', async ({ conversationId, media }) => {
     try {
+      if (!checkRateLimit()) {
+        socket.emit('message_error', { error: 'Rate limit exceeded. Please slow down.' });
+        return;
+      }
+
       if (!conversationId || !media) {
         socket.emit('message_error', { error: 'Invalid media data' });
         return;

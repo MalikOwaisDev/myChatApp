@@ -29,7 +29,7 @@ const ChatLayout = () => {
 
   useEffect(() => {
     if (conversationId && !messages[conversationId]) {
-      loadMessages(conversationId, 1);
+      loadMessages(conversationId);
     }
   }, [conversationId, messages, loadMessages]);
 

@@ -4,9 +4,30 @@ const User = require('../../models/user.model');
 const messageService = require('../../services/message.service');
 const { emitToUser } = require('../../utils/socketEmitter');
 
+const createSocketRateLimit = (max = 30, windowMs = 60_000) => {
+  let timestamps = [];
+  return () => {
+    const now = Date.now();
+    timestamps = timestamps.filter((t) => now - t < windowMs);
+    if (timestamps.length >= max) return false;
+    timestamps.push(now);
+    return true;
+  };
+};
+
+const stripHtml = (str) =>
+  str.replace(/<[^>]*>/g, '').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+
 const messageHandler = (io, socket) => {
+  const checkRateLimit = createSocketRateLimit(30, 60_000);
+
   socket.on('send_message', async ({ conversationId, text }) => {
     try {
+      if (!checkRateLimit()) {
+        socket.emit('message_error', { error: 'Rate limit exceeded. Please slow down.' });
+        return;
+      }
+
       if (!conversationId || !text || !text.trim()) {
         socket.emit('message_error', { error: 'Invalid message data' });
         return;
@@ -17,7 +38,14 @@ const messageHandler = (io, socket) => {
         return;
       }
 
-      if (text.trim().length > 2000) {
+      const sanitized = stripHtml(text).trim();
+
+      if (!sanitized) {
+        socket.emit('message_error', { error: 'Message text is required' });
+        return;
+      }
+
+      if (sanitized.length > 2000) {
         socket.emit('message_error', { error: 'Message too long' });
         return;
       }
@@ -38,7 +66,6 @@ const messageHandler = (io, socket) => {
 
       const otherId = String(conversation.participants.find((p) => String(p) !== socket.userId));
 
-      // Block check: sender blocked other, or other blocked sender
       const [senderData, otherData] = await Promise.all([
         User.findById(socket.userId, 'name blockedUsers').lean(),
         User.findById(otherId, 'blockedUsers').lean(),
@@ -53,7 +80,7 @@ const messageHandler = (io, socket) => {
         return;
       }
 
-      const message = await messageService.createMessage(conversationId, socket.userId, text.trim());
+      const message = await messageService.createMessage(conversationId, socket.userId, sanitized);
 
       const payload = {
         _id: message._id,

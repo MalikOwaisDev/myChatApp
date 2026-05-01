@@ -8,8 +8,10 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
-export const getMessagesApi = (conversationId, page = 1, limit = 30) =>
-  API.get(`/messages/${conversationId}`, { params: { page, limit } });
+export const getMessagesApi = (conversationId, cursor = null, limit = 30) =>
+  API.get(`/messages/${conversationId}`, {
+    params: { ...(cursor ? { cursor } : {}), limit },
+  });
 
 export const sendMessageApi = (conversationId, text) =>
   API.post(`/messages/${conversationId}`, { text });

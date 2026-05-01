@@ -353,3 +353,33 @@ Frontend runs on `http://localhost:5173` · Backend API on `http://localhost:500
 - `ChatContext` — `muteConversation` / `unmuteConversation` optimistically patch `mutedBy` array in local conversation state; `deleteConversation` removes from `conversations` list and clears `messages` map; `clearMessages` empties `messages[convId]`; `receive_message` handler suppresses toast when `conv.mutedBy` includes `myId` OR `settings.notificationsEnabled === false`; settings read via `settingsRef` (always-fresh, no stale closure)
 - `UserDropdown` — "Settings" link added between "My Profile" and "Sign Out"
 - `main.scss` — imports new `_settings.scss` partial
+
+---
+
+### Feature 12 — Performance Optimization + Chat Security Hardening
+
+**Backend** — 2 new files, 5 modified
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/messages/:conversationId?cursor=&limit=` | Cursor-based paginated message fetch |
+
+- `pagination.service.js` — `getPagedMessages(conversationId, userId, cursor, limit)`: cursor is the `_id` of the oldest message currently loaded; queries `{ _id: { $lt: cursor } }`, sorts `{ _id: -1 }`, fetches `limit + 1` to detect `hasMore`, reverses result to chronological order; returns `{ messages, hasMore, nextCursor }` where `nextCursor` is the `_id` of the oldest returned message
+- `sanitize.middleware.js` — `sanitizeBody`: strips HTML tags via regex (`<[^>]*>`) and removes dangerous control characters (`\x00–\x1F` range) from `req.body.text`; applied to all text message send routes
+- `message.controller.js` — `getMessages` updated to use `paginationService.getPagedMessages`; accepts `cursor` (MongoDB `_id`) and `limit` query params; page-based pagination removed
+- `message.service.js` — `getMessages` function removed; `createMessage` retained
+- `message.routes.js` — `messageSendLimiter` applied to `POST /:conversationId` (30 messages / 60 s); `sanitizeBody` middleware applied to the same route
+- `mediaMessage.routes.js` — `mediaSendLimiter` applied to `POST /` (20 media / 60 s)
+- `message.handler.js` (socket) — per-socket `createSocketRateLimit(30, 60_000)` closure created at handler registration; rate check runs before all other validation; text is sanitized with `stripHtml` inline before persistence
+- `media.handler.js` (socket) — per-socket `createSocketRateLimit(20, 60_000)` closure; rate check runs before validation; socket emits `message_error` with `'Rate limit exceeded'` on breach
+- `Message` model indexes: compound `{ conversationId: 1, createdAt: 1 }` — unchanged but now leveraged by cursor query on `_id` (which shares the same index prefix)
+
+**Frontend** — 4 new files, 4 modified
+
+- `pagination.service.js` (backend) / `message.service.js` (frontend) — `getMessagesApi` updated to accept `cursor` (nullable string) instead of `page`; sends `cursor` as query param only when non-null
+- `usePagination.js` (hook) — encapsulates `hasMore`, `loadMore`, `loadingMore` for a given `conversationId`; reads from `ChatContext`; `loadMore` only fires when `!loadingMore && hasMore && msgs.length > 0`
+- `InfiniteScrollLoader` — invisible 1 px sentinel div; single `IntersectionObserver` created on mount (never re-created); uses `disabledRef` and `callbackRef` to read latest `disabled` / `onIntersect` values without re-running the effect; fires callback once per intersection event when not disabled; `rootMargin: '100px 0px 0px 0px'` pre-loads slightly before the sentinel is visible
+- `MessagePaginationLoader` — three skeleton rows (55% / 45% width, alternating sides) animated with `skeletonPulse` keyframe; rendered at the top of the message list while `loadingMore` is true
+- `MessageList` — replaced button-based "Load earlier" with `InfiniteScrollLoader` sentinel at list top; uses `useLayoutEffect` (runs before paint) to either restore scroll position after prepend or smooth-scroll to bottom after append; `savedScrollOffsetRef` stores `scrollHeight − scrollTop` before fetch, consumed after DOM update to keep the user's view stable; `usePagination` hook provides `hasMore` / `loadingMore` / `loadMore`
+- `ChatContext` — `messagePages` removed; replaced with `hasMoreMessages` (map of `convId → boolean`) and `loadingMore` (boolean); `loadMessages(conversationId, cursor)` dispatches to correct loading state flag; `loadEarlierMessages` derives cursor from `msgs[0]._id` (oldest in current slice); `deleteConversation` and `clearMessages` also clean up `hasMoreMessages` map; logout resets `hasMoreMessages`
+- `_chat.scss` — added `.infinite-scroll-trigger` (1 px sentinel), `.msg-pagination-loader` with `__item` and `__item--right` variants, `@keyframes skeletonPulse`
