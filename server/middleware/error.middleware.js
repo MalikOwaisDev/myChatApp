@@ -1,5 +1,12 @@
+const { NODE_ENV } = require('../config/env');
+const logger = require('../utils/logger.util');
+
 const errorHandler = (err, req, res, next) => {
-  console.error(err.stack);
+  if (NODE_ENV === 'production') {
+    logger.error(`${req.method} ${req.path} — ${err.message}`);
+  } else {
+    logger.error(err.stack);
+  }
 
   // Mongoose validation error
   if (err.name === 'ValidationError') {
@@ -22,9 +29,14 @@ const errorHandler = (err, req, res, next) => {
   }
 
   const statusCode = err.statusCode || 500;
-  res.status(statusCode).json({
-    message: err.message || 'Internal server error',
-  });
+  const body = { message: err.message || 'Internal server error' };
+
+  // Never expose stack traces in production
+  if (NODE_ENV !== 'production') {
+    body.stack = err.stack;
+  }
+
+  res.status(statusCode).json(body);
 };
 
 module.exports = { errorHandler };

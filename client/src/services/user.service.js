@@ -1,13 +1,5 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 
-const API = axios.create({ baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api' });
-
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-export const getProfileApi = () => API.get('/user/profile');
-export const updateProfileApi = (data) => API.put('/user/profile', data);
-export const changePasswordApi = (data) => API.put('/user/change-password', data);
+export const getProfileApi = () => apiClient.get('/user/profile');
+export const updateProfileApi = (data) => apiClient.put('/user/profile', data);
+export const changePasswordApi = (data) => apiClient.put('/user/change-password', data);

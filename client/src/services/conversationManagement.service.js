@@ -1,16 +1,9 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 
-const API = axios.create({ baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api' });
-
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-export const muteConversationApi = (id) => API.put(`/conversations/${id}/mute`);
-export const unmuteConversationApi = (id) => API.put(`/conversations/${id}/unmute`);
-export const deleteConversationApi = (id) => API.delete(`/conversations/${id}`);
-export const clearMessagesApi = (conversationId) => API.delete(`/messages/${conversationId}/clear`);
-export const blockUserApi = (userId) => API.post('/users/block', { userId });
-export const unblockUserApi = (userId) => API.post('/users/unblock', { userId });
+export const muteConversationApi = (id) => apiClient.put(`/conversations/${id}/mute`);
+export const unmuteConversationApi = (id) => apiClient.put(`/conversations/${id}/unmute`);
+export const deleteConversationApi = (id) => apiClient.delete(`/conversations/${id}`);
+export const clearMessagesApi = (conversationId) =>
+  apiClient.delete(`/messages/${conversationId}/clear`);
+export const blockUserApi = (userId) => apiClient.post('/users/block', { userId });
+export const unblockUserApi = (userId) => apiClient.post('/users/unblock', { userId });

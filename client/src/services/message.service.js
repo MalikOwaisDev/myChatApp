@@ -1,23 +1,15 @@
-import axios from 'axios';
-
-const API = axios.create({ baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api' });
-
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+import apiClient from './apiClient';
 
 export const getMessagesApi = (conversationId, cursor = null, limit = 30) =>
-  API.get(`/messages/${conversationId}`, {
+  apiClient.get(`/messages/${conversationId}`, {
     params: { ...(cursor ? { cursor } : {}), limit },
   });
 
 export const sendMessageApi = (conversationId, text) =>
-  API.post(`/messages/${conversationId}`, { text });
+  apiClient.post(`/messages/${conversationId}`, { text });
 
 export const markDeliveredApi = (conversationId) =>
-  API.put('/messages/delivered', { conversationId });
+  apiClient.put('/messages/delivered', { conversationId });
 
 export const markSeenApi = (conversationId) =>
-  API.put('/messages/seen', { conversationId });
+  apiClient.put('/messages/seen', { conversationId });

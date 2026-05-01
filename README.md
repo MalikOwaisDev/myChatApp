@@ -383,3 +383,26 @@ Frontend runs on `http://localhost:5173` · Backend API on `http://localhost:500
 - `MessageList` — replaced button-based "Load earlier" with `InfiniteScrollLoader` sentinel at list top; uses `useLayoutEffect` (runs before paint) to either restore scroll position after prepend or smooth-scroll to bottom after append; `savedScrollOffsetRef` stores `scrollHeight − scrollTop` before fetch, consumed after DOM update to keep the user's view stable; `usePagination` hook provides `hasMore` / `loadingMore` / `loadMore`
 - `ChatContext` — `messagePages` removed; replaced with `hasMoreMessages` (map of `convId → boolean`) and `loadingMore` (boolean); `loadMessages(conversationId, cursor)` dispatches to correct loading state flag; `loadEarlierMessages` derives cursor from `msgs[0]._id` (oldest in current slice); `deleteConversation` and `clearMessages` also clean up `hasMoreMessages` map; logout resets `hasMoreMessages`
 - `_chat.scss` — added `.infinite-scroll-trigger` (1 px sentinel), `.msg-pagination-loader` with `__item` and `__item--right` variants, `@keyframes skeletonPulse`
+
+---
+
+### Feature 13 — Deployment & Production Readiness
+
+**Backend** — 2 new files, 4 modified
+
+- `logger.util.js` — structured console logger with ISO timestamp prefix and four levels (`info`, `warn`, `error`, `debug`); `debug` is silenced in production; used throughout config, middleware, and app startup
+- `security.middleware.js` — `setSecurityHeaders` sets `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `X-XSS-Protection: 0` (disabled in favour of CSP), `Referrer-Policy`, `Permissions-Policy`; adds `Strict-Transport-Security` in production only; `globalLimiter` wraps `createRateLimiter` at 500 req / 15 min as a broad API-wide ceiling on top of the stricter per-route limits
+- `config/env.js` — adds `NODE_ENV` export; fail-fast validation checks `MONGO_URI` and `JWT_SECRET` on startup and calls `process.exit(1)` with a clear error message if either is missing
+- `config/db.js` — adds `serverSelectionTimeoutMS: 5000` and `socketTimeoutMS: 45000`; wraps `mongoose.connect` in try/catch so connection failures log via `logger` and exit cleanly; replaces raw `console.log`
+- `error.middleware.js` — in production: logs `METHOD PATH — message` (no stack); in development: logs full stack; `stack` field is stripped from the JSON response body in production to avoid internal path/module disclosure
+- `app.js` — calls `app.disable('x-powered-by')`; wires `setSecurityHeaders` and `globalLimiter` before routes; replaces `console.log` startup message with `logger.info`
+- `server/.env.example` — added `NODE_ENV=development`
+
+**Frontend** — 2 new files, 11 modified
+
+- `client/src/config/env.js` — single source of truth for `API_URL`, `SOCKET_URL`, and `IS_PROD`; all values read from `import.meta.env` with localhost fallbacks for development
+- `client/src/services/apiClient.js` — single shared Axios instance using `API_URL` from `env.js`; attaches `Authorization: Bearer <token>` from `localStorage` on every request via a request interceptor; replaces the duplicated `axios.create` + interceptor boilerplate that existed in each of the 9 service files
+- All 9 service files updated (`auth`, `conversation`, `message`, `media`, `settings`, `conversationManagement`, `user`, `dashboard`, `search`) — removed local `axios.create` block; now import and use `apiClient` directly
+- `socket/socket.js` — imports `SOCKET_URL` from `config/env.js` instead of inlining the env read
+- `vite.config.js` — added `build` config: `sourcemap: false`, `chunkSizeWarningLimit: 1000`, `manualChunks` splitting React/router into `vendor`, Socket.IO into `socket`, Axios into `http` — reduces initial bundle size and improves cache efficiency for unchanged chunks
+- `client/.env.example` — added `VITE_SOCKET_URL=http://localhost:5000`

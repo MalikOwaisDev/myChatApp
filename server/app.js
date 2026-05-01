@@ -2,7 +2,9 @@ const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
-const { PORT, CLIENT_URL } = require('./config/env');
+const { PORT, CLIENT_URL, NODE_ENV } = require('./config/env');
+const logger = require('./utils/logger.util');
+const { setSecurityHeaders, globalLimiter } = require('./middleware/security.middleware');
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
@@ -24,21 +26,26 @@ const httpServer = http.createServer(app);
 
 initSocket(httpServer, CLIENT_URL);
 
+// ─── Security ─────────────────────────────────────────────────────────────────
+app.disable('x-powered-by');
+app.use(setSecurityHeaders);
 app.use(cors({ origin: CLIENT_URL, credentials: true }));
 app.use(express.json({ limit: '5mb' }));
+app.use(globalLimiter);
 
+// ─── Routes ───────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/users', userSearchRoutes);
 app.use('/api/users', blockRoutes);
-app.use('/api/conversations', conversationManagementRoutes); // PUT/DELETE mgmt — before base routes
+app.use('/api/conversations', conversationManagementRoutes);
 app.use('/api/conversations', conversationRoutes);
-app.use('/api/messages', messageStatusRoutes);    // PUT /delivered, PUT /seen — before dynamic routes
-app.use('/api/messages/media', mediaMessageRoutes); // POST /media — before :conversationId routes
+app.use('/api/messages', messageStatusRoutes);
+app.use('/api/messages/media', mediaMessageRoutes);
 app.use('/api/messages', messageRoutes);
 
 app.use(errorHandler);
 
-httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+httpServer.listen(PORT, () => logger.info(`Server running on port ${PORT} [${NODE_ENV}]`));

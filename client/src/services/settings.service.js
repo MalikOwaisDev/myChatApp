@@ -1,12 +1,4 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 
-const API = axios.create({ baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api' });
-
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-export const getSettingsApi = () => API.get('/settings');
-export const updateSettingsApi = (data) => API.put('/settings', data);
+export const getSettingsApi = () => apiClient.get('/settings');
+export const updateSettingsApi = (data) => apiClient.put('/settings', data);
