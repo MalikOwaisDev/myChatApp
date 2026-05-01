@@ -5,14 +5,23 @@ import ConversationList from './ConversationList';
 import ChatHeader from './ChatHeader';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
+import TypingIndicator from './TypingIndicator';
 
 const ChatLayout = () => {
   const { conversationId } = useParams();
-  const { conversations, setActiveConversationId, getOtherParticipant, loadMessages, messages } =
-    useChat();
+  const {
+    conversations,
+    getOtherParticipant,
+    loadMessages,
+    messages,
+    onlineUsers,
+    typingUsers,
+  } = useChat();
 
   const activeConv = conversations.find((c) => String(c._id) === conversationId);
   const otherParticipant = activeConv ? getOtherParticipant(activeConv) : null;
+  const isOnline = otherParticipant ? !!onlineUsers[String(otherParticipant._id)] : false;
+  const isTyping = conversationId ? !!typingUsers[conversationId] : false;
 
   useEffect(() => {
     if (conversationId && !messages[conversationId]) {
@@ -27,8 +36,9 @@ const ChatLayout = () => {
       <div className={`chat-window${conversationId ? ' chat-window--active' : ''}`}>
         {conversationId && activeConv ? (
           <>
-            <ChatHeader participant={otherParticipant} />
+            <ChatHeader participant={otherParticipant} isOnline={isOnline} />
             <MessageList conversationId={conversationId} />
+            {isTyping && <TypingIndicator name={otherParticipant?.name} />}
             <MessageInput conversationId={conversationId} />
           </>
         ) : (

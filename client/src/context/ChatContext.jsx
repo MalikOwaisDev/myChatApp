@@ -24,6 +24,8 @@ export const ChatProvider = ({ children }) => {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [messagePages, setMessagePages] = useState({});
   const [unreadCounts, setUnreadCounts] = useState({});
+  const [onlineUsers, setOnlineUsers] = useState({}); // { [userId]: true }
+  const [typingUsers, setTypingUsers] = useState({}); // { [conversationId]: true }
 
   const activeConvIdRef = useRef(activeConversationId);
   useEffect(() => { activeConvIdRef.current = activeConversationId; }, [activeConversationId]);
@@ -92,12 +94,15 @@ export const ChatProvider = ({ children }) => {
       setConversations([]);
       setMessages({});
       setActiveConversationId(null);
+      setOnlineUsers({});
+      setTypingUsers({});
     }
   }, [token, loadConversations]);
 
   const conversationsRef = useRef(conversations);
   useEffect(() => { conversationsRef.current = conversations; }, [conversations]);
 
+  // ─── Real-time: incoming messages ──────────────────────────────────────────
   useEffect(() => {
     const handleReceiveMessage = (message) => {
       const convId = String(message.conversationId);
@@ -117,6 +122,14 @@ export const ChatProvider = ({ children }) => {
         ).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
       );
 
+      // Clear typing indicator when message arrives
+      setTypingUsers((prev) => {
+        if (!prev[convId]) return prev;
+        const next = { ...prev };
+        delete next[convId];
+        return next;
+      });
+
       const currentMyId = myIdRef.current;
       if (currentMyId && senderId !== currentMyId) {
         if (convId !== activeConvIdRef.current) {
@@ -131,6 +144,60 @@ export const ChatProvider = ({ children }) => {
     socket.on('receive_message', handleReceiveMessage);
     return () => socket.off('receive_message', handleReceiveMessage);
   }, [myId, showToast]);
+
+  // ─── Real-time: presence ────────────────────────────────────────────────────
+  useEffect(() => {
+    const handlePresenceInit = ({ onlineUserIds }) => {
+      const map = {};
+      for (const id of onlineUserIds) map[String(id)] = true;
+      setOnlineUsers(map);
+    };
+
+    const handleUserOnline = ({ userId }) => {
+      setOnlineUsers((prev) => ({ ...prev, [String(userId)]: true }));
+    };
+
+    const handleUserOffline = ({ userId }) => {
+      setOnlineUsers((prev) => {
+        const next = { ...prev };
+        delete next[String(userId)];
+        return next;
+      });
+    };
+
+    socket.on('presence_init', handlePresenceInit);
+    socket.on('user_online', handleUserOnline);
+    socket.on('user_offline', handleUserOffline);
+
+    return () => {
+      socket.off('presence_init', handlePresenceInit);
+      socket.off('user_online', handleUserOnline);
+      socket.off('user_offline', handleUserOffline);
+    };
+  }, []);
+
+  // ─── Real-time: typing indicators ──────────────────────────────────────────
+  useEffect(() => {
+    const handleTypingStart = ({ conversationId }) => {
+      setTypingUsers((prev) => ({ ...prev, [String(conversationId)]: true }));
+    };
+
+    const handleTypingStop = ({ conversationId }) => {
+      setTypingUsers((prev) => {
+        const next = { ...prev };
+        delete next[String(conversationId)];
+        return next;
+      });
+    };
+
+    socket.on('typing_start', handleTypingStart);
+    socket.on('typing_stop', handleTypingStop);
+
+    return () => {
+      socket.off('typing_start', handleTypingStart);
+      socket.off('typing_stop', handleTypingStop);
+    };
+  }, []);
 
   const sendMessage = useCallback((conversationId, text) => {
     socket.emit('send_message', { conversationId, text });
@@ -161,6 +228,8 @@ export const ChatProvider = ({ children }) => {
         getOtherParticipant,
         messagePages,
         unreadCounts,
+        onlineUsers,
+        typingUsers,
       }}
     >
       {children}

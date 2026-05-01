@@ -24,4 +24,11 @@ const emitToUser = (userId, event, data) => {
   }
 };
 
-module.exports = { init, registerUser, unregisterSocket, emitToUser };
+const isOnline = (userId) => {
+  const sockets = userSockets.get(String(userId));
+  return Boolean(sockets && sockets.size > 0);
+};
+
+const getAllOnlineUserIds = () => Array.from(userSockets.keys());
+
+module.exports = { init, registerUser, unregisterSocket, emitToUser, isOnline, getAllOnlineUserIds };

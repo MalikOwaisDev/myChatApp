@@ -1,4 +1,5 @@
 import { useAuth } from '../../context/AuthContext';
+import { useChat } from '../../context/ChatContext';
 
 const Avatar = ({ user, size = 40 }) => {
   if (user?.profileImage) {
@@ -20,11 +21,14 @@ const Avatar = ({ user, size = 40 }) => {
 
 const ConversationItem = ({ conversation, isActive, unreadCount, onClick }) => {
   const { user } = useAuth();
+  const { onlineUsers } = useChat();
 
   const myId = user?.id ? String(user.id) : null;
   const other = conversation.participants?.find(
     (p) => String(p._id) !== myId
   );
+
+  const isOnline = other ? !!onlineUsers[String(other._id)] : false;
 
   const lastMsg = conversation.lastMessage;
   const preview = lastMsg?.text
@@ -43,7 +47,10 @@ const ConversationItem = ({ conversation, isActive, unreadCount, onClick }) => {
       onClick={onClick}
       type="button"
     >
-      <Avatar user={other} />
+      <div className="conv-item__avatar-wrap">
+        <Avatar user={other} />
+        {isOnline && <span className="conv-item__presence-dot" />}
+      </div>
       <div className="conv-item__body">
         <div className="conv-item__top">
           <span className="conv-item__name">{other?.name || 'Unknown'}</span>

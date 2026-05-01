@@ -203,3 +203,37 @@ Frontend runs on `http://localhost:5173` · Backend API on `http://localhost:500
 - Real-time flow: client emits `send_message` → server persists + emits `receive_message` to all participant sockets
 - Message deduplication by `_id` prevents duplicates across socket and REST responses
 - "Start a Chat" quick action on Dashboard now links to `/chat`
+
+---
+
+### Feature 8 — Online Presence & Typing Indicators
+
+**Backend** — No new REST routes (Socket.io events only)
+
+- `presence.service.js` — `getConversationPartners(userId)` queries all conversations to find who should receive presence updates; `isOnline(userId)` checks live socket count via `socketEmitter`
+- `presence.handler.js` — on connect: notifies conversation partners via `user_online`, sends `presence_init` (filtered to online partners only); on disconnect: emits `user_offline` only when the user's last socket closes (multi-tab safe)
+- `typing.handler.js` — receives `typing_start` / `typing_stop` from sender, validates conversation membership, forwards payload to the other participant only
+- `socketEmitter` extended with `isOnline(userId)` and `getAllOnlineUserIds()` helpers
+- Presence is **not stored in the database** — in-memory only, derived from the live `userSockets` map
+- Privacy: `presence_init` only includes partners of the connecting user, not all online users
+
+**Socket events**
+
+| Direction | Event | Payload | Description |
+|-----------|-------|---------|-------------|
+| server → client | `presence_init` | `{ onlineUserIds[] }` | Sent on connect — online conversation partners |
+| server → client | `user_online` | `{ userId }` | A conversation partner came online |
+| server → client | `user_offline` | `{ userId }` | A conversation partner went offline |
+| client → server | `typing_start` | `{ conversationId }` | User started typing |
+| client → server | `typing_stop` | `{ conversationId }` | User stopped typing |
+| server → client | `typing_start` | `{ conversationId, userId }` | Forwarded to other participant |
+| server → client | `typing_stop` | `{ conversationId, userId }` | Forwarded to other participant |
+
+**Frontend**
+
+- `ChatContext` extended with `onlineUsers` (`{ [userId]: true }` map) and `typingUsers` (`{ [conversationId]: true }` map); listeners for all 5 presence/typing events; typing cleared automatically when a message arrives
+- `OnlineStatus` component — coloured dot: green + glow when online, dim when offline; used in header and conversation list
+- `TypingIndicator` component — three bouncing dots with staggered animation + italic "… is typing" label; rendered between message list and input when active
+- `ChatHeader` — `@username` line replaced with live presence row: green dot + "Online" when active, grey dot + `@username` when offline
+- `ConversationItem` — green presence dot overlaid on avatar (bottom-right, bordered) when other user is online
+- `MessageInput` — debounced typing events: `typing_start` on first keystroke, auto `typing_stop` after 2 s of inactivity; immediate `typing_stop` on send or conversation change; cleans up on unmount

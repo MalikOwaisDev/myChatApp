@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import OnlineStatus from './OnlineStatus';
 
 const BackIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -6,7 +7,7 @@ const BackIcon = () => (
   </svg>
 );
 
-const ChatHeader = ({ participant }) => {
+const ChatHeader = ({ participant, isOnline }) => {
   const navigate = useNavigate();
 
   const initials = participant?.name
@@ -29,7 +30,12 @@ const ChatHeader = ({ participant }) => {
 
       <div className="chat-header__info">
         <span className="chat-header__name">{participant?.name || 'Unknown'}</span>
-        <span className="chat-header__username">@{participant?.username || '—'}</span>
+        <div className="chat-header__presence">
+          <OnlineStatus online={isOnline} size={7} />
+          <span className="chat-header__presence-text">
+            {isOnline ? 'Online' : `@${participant?.username || '—'}`}
+          </span>
+        </div>
       </div>
     </header>
   );

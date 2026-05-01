@@ -106,6 +106,23 @@
   transition: background v.$transition-fast;
   border-left: 2px solid transparent;
 
+  &__avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  &__presence-dot {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #34d399;
+    border: 2px solid v.$color-bg-deep;
+    box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.3);
+  }
+
   &:hover {
     background: rgba(139, 92, 246, 0.04);
   }
@@ -341,9 +358,15 @@
     @include m.truncate;
   }
 
-  &__username {
+  &__presence {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-xs;
+  }
+
+  &__presence-text {
     font-size: v.$font-size-xs;
-    color: v.$color-primary;
+    color: v.$color-text-muted;
   }
 }
 
@@ -541,4 +564,58 @@
 
     &:disabled { cursor: not-allowed; }
   }
+}
+
+// ─── Online Status Dot ────────────────────────────────────────────────────────
+.online-status {
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+
+  &--online {
+    background: #34d399;
+    box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.2);
+  }
+
+  &--offline {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+// ─── Typing Indicator ─────────────────────────────────────────────────────────
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+  padding: v.$spacing-xs v.$spacing-xl;
+  min-height: 28px;
+  flex-shrink: 0;
+
+  &__dots {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+
+    span {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: v.$color-text-muted;
+      animation: typingDot 1.2s ease infinite;
+
+      &:nth-child(2) { animation-delay: 0.2s; }
+      &:nth-child(3) { animation-delay: 0.4s; }
+    }
+  }
+
+  &__text {
+    font-size: v.$font-size-xs;
+    color: v.$color-text-muted;
+    font-style: italic;
+  }
+}
+
+@keyframes typingDot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
 }
