@@ -3,18 +3,26 @@ import { useNavigate } from 'react-router-dom';
 import socket from '../socket/socket';
 import { useAuth } from './AuthContext';
 import { useUI } from './UIContext';
+import { useSettings } from './SettingsContext';
 import {
   getConversationsApi,
   createOrGetConversationApi,
 } from '../services/conversation.service';
 import { getMessagesApi, markDeliveredApi, markSeenApi } from '../services/message.service';
 import { sendMediaApi } from '../services/media.service';
+import {
+  muteConversationApi,
+  unmuteConversationApi,
+  deleteConversationApi,
+  clearMessagesApi,
+} from '../services/conversationManagement.service';
 
 const ChatContext = createContext(null);
 
 export const ChatProvider = ({ children }) => {
   const { token, user } = useAuth();
   const { showToast } = useUI();
+  const { settings } = useSettings();
   const navigate = useNavigate();
   const myId = user?.id ? String(user.id) : null;
 
@@ -34,6 +42,9 @@ export const ChatProvider = ({ children }) => {
 
   const myIdRef = useRef(myId);
   useEffect(() => { myIdRef.current = myId; }, [myId]);
+
+  const settingsRef = useRef(settings);
+  useEffect(() => { settingsRef.current = settings; }, [settings]);
 
   const loadConversations = useCallback(async () => {
     if (!token) return;
@@ -73,7 +84,6 @@ export const ChatProvider = ({ children }) => {
     if (!messages[conversationId]) {
       await loadMessages(conversationId, 1);
     }
-    // Mark all messages as seen when opening the conversation
     markSeenApi(conversationId).catch(() => {});
     navigate(`/chat/${conversationId}`);
   }, [messages, loadMessages, navigate]);
@@ -91,6 +101,45 @@ export const ChatProvider = ({ children }) => {
     const currentPage = messagePages[conversationId] || 1;
     await loadMessages(conversationId, currentPage + 1);
   }, [messagePages, loadMessages]);
+
+  // ─── Conversation management actions ───────────────────────────────────────
+  const muteConversation = useCallback(async (conversationId) => {
+    await muteConversationApi(conversationId);
+    setConversations((prev) =>
+      prev.map((c) =>
+        String(c._id) === conversationId
+          ? { ...c, mutedBy: [...(c.mutedBy || []), myId] }
+          : c
+      )
+    );
+  }, [myId]);
+
+  const unmuteConversation = useCallback(async (conversationId) => {
+    await unmuteConversationApi(conversationId);
+    setConversations((prev) =>
+      prev.map((c) =>
+        String(c._id) === conversationId
+          ? { ...c, mutedBy: (c.mutedBy || []).filter((id) => String(id) !== myId) }
+          : c
+      )
+    );
+  }, [myId]);
+
+  const deleteConversation = useCallback(async (conversationId) => {
+    await deleteConversationApi(conversationId);
+    setConversations((prev) => prev.filter((c) => String(c._id) !== conversationId));
+    setMessages((prev) => {
+      const next = { ...prev };
+      delete next[conversationId];
+      return next;
+    });
+    setActiveConversationId(null);
+  }, []);
+
+  const clearMessages = useCallback(async (conversationId) => {
+    await clearMessagesApi(conversationId);
+    setMessages((prev) => ({ ...prev, [conversationId]: [] }));
+  }, []);
 
   useEffect(() => {
     if (token) loadConversations();
@@ -126,7 +175,6 @@ export const ChatProvider = ({ children }) => {
         ).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
       );
 
-      // Clear typing indicator when a message arrives
       setTypingUsers((prev) => {
         if (!prev[convId]) return prev;
         const next = { ...prev };
@@ -136,17 +184,20 @@ export const ChatProvider = ({ children }) => {
 
       const currentMyId = myIdRef.current;
       if (currentMyId && senderId !== currentMyId) {
-        // Mark as delivered via socket (faster than REST for real-time messages)
         socket.emit('mark_delivered', { conversationId: convId });
 
-        // If this conversation is currently open, mark as seen immediately
         if (convId === activeConvIdRef.current) {
           markSeenApi(convId).catch(() => {});
         } else {
           setUnreadCounts((prev) => ({ ...prev, [convId]: (prev[convId] || 0) + 1 }));
+
+          // Suppress toast if global notifications are off OR conversation is muted
           const conv = conversationsRef.current.find((c) => String(c._id) === convId);
-          const sender = conv?.participants?.find((p) => String(p._id) !== currentMyId);
-          showToast(`New message from ${sender?.name || 'Someone'}`, 'info');
+          const isMuted = conv?.mutedBy?.some((id) => String(id) === currentMyId);
+          if (!isMuted && settingsRef.current?.notificationsEnabled !== false) {
+            const sender = conv?.participants?.find((p) => String(p._id) !== currentMyId);
+            showToast(`New message from ${sender?.name || 'Someone'}`, 'info');
+          }
         }
       }
     };
@@ -248,7 +299,6 @@ export const ChatProvider = ({ children }) => {
     setUploading(true);
     try {
       await sendMediaApi(conversationId, media);
-      // receive_message socket event delivers the saved message to all participants
     } catch {
       showToast('Failed to send image', 'error');
     } finally {
@@ -285,6 +335,10 @@ export const ChatProvider = ({ children }) => {
         unreadCounts,
         onlineUsers,
         typingUsers,
+        muteConversation,
+        unmuteConversation,
+        deleteConversation,
+        clearMessages,
       }}
     >
       {children}

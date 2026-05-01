@@ -311,3 +311,45 @@ Frontend runs on `http://localhost:5173` · Backend API on `http://localhost:500
 - `ChatContext` — `sendMedia(conversationId, media)`: calls REST, sets `uploading` flag, shows error toast on failure; `receive_message` socket handler unchanged — media messages enter the same deduplication + unread-count + mark-delivered flow as text messages
 - `NotificationContext` — `handleReceiveMessage` now produces "sent you a photo" text for `messageType === 'media'` entries in the notification panel
 - Chat-aware notification logic unchanged: active-conversation messages suppress the toast; inactive-conversation messages show toast + increment unread badge
+
+---
+
+### Feature 11 — User Settings & Chat Preferences + Conversation Management
+
+**Backend** — 8 new files, 7 modified
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/settings` | Get user settings and blocked users list |
+| PUT | `/api/settings` | Update notification / sound preferences |
+| PUT | `/api/conversations/:id/mute` | Mute a conversation for the requesting user |
+| PUT | `/api/conversations/:id/unmute` | Unmute a conversation |
+| DELETE | `/api/conversations/:id` | Soft-delete conversation from user's inbox |
+| DELETE | `/api/messages/:conversationId/clear` | Clear all messages for the requesting user only |
+| POST | `/api/users/block` | Block a user — prevents messaging in both directions |
+| POST | `/api/users/unblock` | Remove a block |
+
+- `User` model extended with `settings` (`notificationsEnabled`, `soundEnabled` — both Boolean, default `true`) and `blockedUsers` (`ObjectId[]` ref User)
+- `Conversation` model extended with `mutedBy` (`ObjectId[]`) and `deletedFor` (`ObjectId[]`); `getUserConversations` filters `{ deletedFor: { $nin: [userId] } }`; `createOrGetConversation` uses `findOneAndUpdate` with `$pull: { deletedFor }` to restore a previously deleted conversation when the user re-initiates it
+- `Message` model extended with `deletedFor` (`ObjectId[]`); `getMessages` service filters `{ deletedFor: { $nin: [userId] } }` to implement per-user message clearing
+- `settings.service.js` — `getSettings` populates blocked users with name/username/profileImage; `updateSettings` uses `$set` on individual sub-paths to safely update boolean preferences
+- `conversationManagement.controller.js` — `muteConversation` / `unmuteConversation` use `$addToSet` / `$pull`; `deleteConversation` uses `$addToSet`; `clearMessages` uses `Message.updateMany` with `$addToSet: { deletedFor }`
+- `block.controller.js` — `blockUser` validates self-block, confirms target exists, returns target's public profile; block check enforced in `message.handler.js` and `mediaMessage.controller.js` / `media.handler.js` — both directions checked (`sender → other` and `other → sender`) before any message is persisted
+- `conversationManagement.routes.js` mounted at `/api/conversations` **before** base conversation routes; `clearMessages` route added to `message.routes.js` as `DELETE /:conversationId/clear` before `/:conversationId` to avoid path collision; `block.routes.js` mounted alongside `userSearch.routes.js` at `/api/users`
+
+**Frontend** — 12 new files, 8 modified
+
+- `SettingsContext` — loads settings + blocked users on login via `GET /api/settings`; exposes `updateSettings`, `blockUser`, `unblockUser`, `isBlocked(userId)`; resets on logout; `SettingsProvider` wraps `NotificationProvider` + `ChatProvider` in `App.jsx`
+- `settings.service.js` / `conversationManagement.service.js` — thin Axios wrappers for all 8 new endpoints
+- **Settings page** (`/settings`) — three sections: Notifications (toggle panel), Privacy (blocked users list + unblock), Account Info (read-only name/username/email)
+- `ToggleSwitch` — accessible checkbox hidden behind custom styled track + thumb; animated with CSS transition; purple gradient when checked
+- `SettingsPanel` — renders two toggle rows (Chat Notifications, Sound); calls `updateSettings` on toggle change with per-key `saving` state
+- `PrivacySection` — lists blocked users with avatar/name/username; per-item `Unblock` button with loading state
+- `AccountInfo` — reads from `AuthContext`; read-only display of name, username, email, optional avatar
+- `ChatMenu` — 3-dot trigger button in `ChatHeader`; click-outside closes; dropdown with Mute/Unmute (optimistic state from `conv.mutedBy`), Clear Chat, Delete Conversation, Block/Unblock User; destructive actions route through `ConfirmModal`
+- `ConfirmModal` — portal-based dialog (renders into `document.body`); Escape key closes; danger/confirm/cancel button variants; receives `loading` prop to disable buttons during async actions
+- `ChatHeader` — receives `conversationId` and `isMuted` props; renders `ChatMenu`; shows a "Muted" pill badge next to presence when muted
+- `ChatLayout` — computes `isMuted` from `activeConv.mutedBy?.includes(myId)` and passes to `ChatHeader`; imports `useAuth` for `myId`
+- `ChatContext` — `muteConversation` / `unmuteConversation` optimistically patch `mutedBy` array in local conversation state; `deleteConversation` removes from `conversations` list and clears `messages` map; `clearMessages` empties `messages[convId]`; `receive_message` handler suppresses toast when `conv.mutedBy` includes `myId` OR `settings.notificationsEnabled === false`; settings read via `settingsRef` (always-fresh, no stale closure)
+- `UserDropdown` — "Settings" link added between "My Profile" and "Sign Out"
+- `main.scss` — imports new `_settings.scss` partial

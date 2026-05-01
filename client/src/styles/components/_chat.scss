@@ -515,6 +515,150 @@
   }
 }
 
+// ─── Chat Header — muted badge ───────────────────────────────────────────────
+.chat-header__muted-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: v.$color-text-muted;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-full;
+  padding: 1px 6px;
+}
+
+// ─── Chat Menu (3-dot) ────────────────────────────────────────────────────────
+.chat-menu {
+  position: relative;
+  flex-shrink: 0;
+
+  &__trigger {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: v.$color-text-muted;
+    @include m.flex-center;
+    cursor: pointer;
+    transition: background v.$transition-fast, color v.$transition-fast;
+
+    &:hover { background: rgba(255, 255, 255, 0.06); color: v.$color-text-heading; }
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 200px;
+    @include m.glass;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-md;
+    padding: v.$spacing-xs 0;
+    z-index: 100;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    animation: dropdownIn 0.1s ease both;
+  }
+
+  @keyframes dropdownIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  &__item {
+    display: block;
+    width: 100%;
+    padding: v.$spacing-sm v.$spacing-lg;
+    background: transparent;
+    border: none;
+    text-align: left;
+    font-size: v.$font-size-sm;
+    color: v.$color-text-body;
+    cursor: pointer;
+    transition: background v.$transition-fast;
+
+    &:hover { background: rgba(255, 255, 255, 0.05); }
+
+    &--danger {
+      color: #f87171;
+      &:hover { background: rgba(239, 68, 68, 0.08); }
+    }
+  }
+}
+
+// ─── Confirm Modal ────────────────────────────────────────────────────────────
+.confirm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  z-index: 200;
+  @include m.flex-center;
+}
+
+.confirm-modal {
+  @include m.glass;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-2xl;
+  max-width: 380px;
+  width: calc(100% - v.$spacing-3xl);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+
+  &__title {
+    font-size: v.$font-size-lg;
+    font-weight: 700;
+    color: v.$color-text-heading;
+    margin-bottom: v.$spacing-sm;
+  }
+
+  &__message {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
+    line-height: 1.6;
+    margin-bottom: v.$spacing-xl;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: v.$spacing-sm;
+  }
+
+  &__btn {
+    padding: v.$spacing-sm v.$spacing-lg;
+    border-radius: v.$radius-md;
+    font-size: v.$font-size-sm;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background v.$transition-fast, opacity v.$transition-fast;
+
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    &--cancel {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: v.$color-border;
+      color: v.$color-text-body;
+      &:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); }
+    }
+
+    &--confirm {
+      background: v.$gradient-primary;
+      color: #fff;
+      &:hover:not(:disabled) { opacity: 0.9; }
+    }
+
+    &--danger {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      &:hover:not(:disabled) { background: rgba(239, 68, 68, 0.2); }
+    }
+  }
+}
+
 // ─── Media Preview (above input) ─────────────────────────────────────────────
 .media-preview {
   position: relative;

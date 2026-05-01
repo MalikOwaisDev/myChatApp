@@ -18,10 +18,24 @@ const sendMediaMessage = asyncHandler(async (req, res) => {
   const isMember = conversation.participants.some((p) => String(p) === String(req.user.id));
   if (!isMember) return res.status(403).json({ message: 'Access denied' });
 
-  const [message, sender] = await Promise.all([
-    createMediaMessage(conversationId, req.user.id, req.body.media, req.mediaType),
-    User.findById(req.user.id, 'name').lean(),
+  const otherId = String(conversation.participants.find((p) => String(p) !== String(req.user.id)));
+
+  const [senderData, otherData] = await Promise.all([
+    User.findById(req.user.id, 'name blockedUsers').lean(),
+    User.findById(otherId, 'blockedUsers').lean(),
   ]);
+
+  const isBlocked =
+    senderData?.blockedUsers?.some((id) => String(id) === otherId) ||
+    otherData?.blockedUsers?.some((id) => String(id) === String(req.user.id));
+
+  if (isBlocked) return res.status(403).json({ message: 'Cannot message this user' });
+
+  const [message] = await Promise.all([
+    createMediaMessage(conversationId, req.user.id, req.body.media, req.mediaType),
+  ]);
+
+  const sender = senderData;
 
   const payload = {
     _id: message._id,

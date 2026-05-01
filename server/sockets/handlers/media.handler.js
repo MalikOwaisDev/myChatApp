@@ -42,16 +42,30 @@ const mediaHandler = (io, socket) => {
         return;
       }
 
-      const [message, sender] = await Promise.all([
+      const otherId = String(conversation.participants.find((p) => String(p) !== socket.userId));
+      const [senderData, otherData] = await Promise.all([
+        User.findById(socket.userId, 'name blockedUsers').lean(),
+        User.findById(otherId, 'blockedUsers').lean(),
+      ]);
+
+      const isBlocked =
+        senderData?.blockedUsers?.some((id) => String(id) === otherId) ||
+        otherData?.blockedUsers?.some((id) => String(id) === socket.userId);
+
+      if (isBlocked) {
+        socket.emit('message_error', { error: 'Cannot message this user' });
+        return;
+      }
+
+      const [message] = await Promise.all([
         createMediaMessage(conversationId, socket.userId, media, mediaType),
-        User.findById(socket.userId, 'name').lean(),
       ]);
 
       const payload = {
         _id: message._id,
         conversationId: message.conversationId,
         senderId: message.senderId,
-        senderName: sender?.name || 'Someone',
+        senderName: senderData?.name || 'Someone',
         media: message.media,
         mediaType: message.mediaType,
         messageType: message.messageType,

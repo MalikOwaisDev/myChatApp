@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
 import ConversationList from './ConversationList';
 import ChatHeader from './ChatHeader';
@@ -9,6 +10,7 @@ import TypingIndicator from './TypingIndicator';
 
 const ChatLayout = () => {
   const { conversationId } = useParams();
+  const { user } = useAuth();
   const {
     conversations,
     getOtherParticipant,
@@ -18,10 +20,12 @@ const ChatLayout = () => {
     typingUsers,
   } = useChat();
 
+  const myId = user?.id ? String(user.id) : null;
   const activeConv = conversations.find((c) => String(c._id) === conversationId);
   const otherParticipant = activeConv ? getOtherParticipant(activeConv) : null;
   const isOnline = otherParticipant ? !!onlineUsers[String(otherParticipant._id)] : false;
   const isTyping = conversationId ? !!typingUsers[conversationId] : false;
+  const isMuted = myId && activeConv?.mutedBy?.some((id) => String(id) === myId);
 
   useEffect(() => {
     if (conversationId && !messages[conversationId]) {
@@ -36,7 +40,12 @@ const ChatLayout = () => {
       <div className={`chat-window${conversationId ? ' chat-window--active' : ''}`}>
         {conversationId && activeConv ? (
           <>
-            <ChatHeader participant={otherParticipant} isOnline={isOnline} />
+            <ChatHeader
+              participant={otherParticipant}
+              isOnline={isOnline}
+              conversationId={conversationId}
+              isMuted={!!isMuted}
+            />
             <MessageList conversationId={conversationId} />
             {isTyping && <TypingIndicator name={otherParticipant?.name} />}
             <MessageInput conversationId={conversationId} />

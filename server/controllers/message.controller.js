@@ -40,7 +40,7 @@ const getMessages = asyncHandler(async (req, res) => {
   const page = Math.max(1, parseInt(req.query.page) || 1);
   const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 30));
 
-  const messages = await messageService.getMessages(req.conversation._id, page, limit);
+  const messages = await messageService.getMessages(req.conversation._id, req.user.id, page, limit);
 
   res.json(messages);
 });

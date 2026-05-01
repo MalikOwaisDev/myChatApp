@@ -49,6 +49,14 @@ const UserDropdown = () => {
           >
             My Profile
           </Link>
+          <Link
+            to="/settings"
+            className="user-dropdown__item"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+          >
+            Settings
+          </Link>
           <button
             className="user-dropdown__item user-dropdown__item--danger"
             role="menuitem"

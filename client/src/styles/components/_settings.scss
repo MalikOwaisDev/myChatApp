@@ -1,0 +1,277 @@
+@use "../abstracts/variables" as v;
+@use "../abstracts/mixins" as m;
+
+// ─── Settings Page ────────────────────────────────────────────────────────────
+.settings-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: v.$spacing-3xl v.$spacing-xl;
+
+  &__header {
+    margin-bottom: v.$spacing-3xl;
+  }
+
+  &__title {
+    font-size: v.$font-size-xl;
+    font-weight: 700;
+    color: v.$color-text-heading;
+    letter-spacing: -0.03em;
+  }
+
+  &__sub {
+    margin-top: v.$spacing-xs;
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
+  }
+
+  &__body {
+    @include m.flex-col;
+    gap: v.$spacing-xl;
+  }
+}
+
+// ─── Settings Section ─────────────────────────────────────────────────────────
+.settings-section {
+  @include m.glass;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  overflow: hidden;
+
+  &__title {
+    padding: v.$spacing-lg v.$spacing-xl;
+    font-size: v.$font-size-sm;
+    font-weight: 700;
+    color: v.$color-text-heading;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-bottom: 1px solid v.$color-border;
+  }
+
+  &__body {
+    padding: v.$spacing-sm 0;
+  }
+
+  &__label {
+    display: block;
+    padding: v.$spacing-sm v.$spacing-xl v.$spacing-xs;
+    font-size: v.$font-size-xs;
+    font-weight: 600;
+    color: v.$color-text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  &__empty {
+    padding: v.$spacing-md v.$spacing-xl;
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
+  }
+}
+
+// ─── Settings Row (toggle row) ────────────────────────────────────────────────
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$spacing-lg;
+  padding: v.$spacing-md v.$spacing-xl;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+
+  &:last-child { border-bottom: none; }
+
+  &__info {
+    @include m.flex-col;
+    gap: 2px;
+  }
+
+  &__label {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-heading;
+    font-weight: 500;
+  }
+
+  &__sub {
+    font-size: v.$font-size-xs;
+    color: v.$color-text-muted;
+  }
+}
+
+// ─── Toggle Switch ────────────────────────────────────────────────────────────
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  &__track {
+    width: 44px;
+    height: 24px;
+    border-radius: v.$radius-full;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid v.$color-border;
+    transition: background v.$transition-base, border-color v.$transition-base;
+    display: flex;
+    align-items: center;
+    padding: 0 3px;
+  }
+
+  &__thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transition: transform v.$transition-base, background v.$transition-base;
+  }
+
+  &__input:checked ~ &__track {
+    background: v.$gradient-primary;
+    border-color: transparent;
+  }
+
+  &__input:checked ~ &__track &__thumb {
+    transform: translateX(20px);
+    background: #fff;
+  }
+
+  &__input:disabled ~ &__track {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+// ─── Account Info ─────────────────────────────────────────────────────────────
+.account-info {
+  display: flex;
+  gap: v.$spacing-xl;
+  padding: v.$spacing-lg v.$spacing-xl;
+  align-items: flex-start;
+
+  &__avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid v.$color-border;
+    flex-shrink: 0;
+  }
+
+  &__rows {
+    @include m.flex-col;
+    gap: v.$spacing-sm;
+    flex: 1;
+  }
+
+  &__row {
+    display: flex;
+    gap: v.$spacing-md;
+  }
+
+  &__label {
+    width: 72px;
+    flex-shrink: 0;
+    font-size: v.$font-size-xs;
+    font-weight: 600;
+    color: v.$color-text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding-top: 2px;
+  }
+
+  &__value {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-heading;
+    word-break: break-all;
+  }
+}
+
+// ─── Blocked Users List ───────────────────────────────────────────────────────
+.blocked-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: v.$spacing-md;
+    padding: v.$spacing-sm v.$spacing-xl;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+
+    &:last-child { border-bottom: none; }
+  }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-md;
+    min-width: 0;
+  }
+
+  &__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid v.$color-border;
+    flex-shrink: 0;
+  }
+
+  &__initials {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: v.$gradient-primary;
+    @include m.flex-center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    @include m.flex-col;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: v.$font-size-sm;
+    font-weight: 600;
+    color: v.$color-text-heading;
+    @include m.truncate;
+  }
+
+  &__username {
+    font-size: v.$font-size-xs;
+    color: v.$color-text-muted;
+  }
+
+  &__unblock {
+    flex-shrink: 0;
+    padding: v.$spacing-xs v.$spacing-md;
+    border-radius: v.$radius-sm;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.06);
+    color: #f87171;
+    font-size: v.$font-size-xs;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background v.$transition-fast, border-color v.$transition-fast;
+
+    &:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+}

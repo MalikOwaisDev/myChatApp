@@ -12,10 +12,13 @@ const createMessage = async (conversationId, senderId, text) => {
   return message;
 };
 
-const getMessages = async (conversationId, page = 1, limit = 30) => {
+const getMessages = async (conversationId, userId, page = 1, limit = 30) => {
   const skip = (page - 1) * limit;
 
-  const messages = await Message.find({ conversationId })
+  const messages = await Message.find({
+    conversationId,
+    deletedFor: { $nin: [userId] },
+  })
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)

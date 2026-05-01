@@ -42,6 +42,11 @@ const userSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
+    settings: {
+      notificationsEnabled: { type: Boolean, default: true },
+      soundEnabled: { type: Boolean, default: true },
+    },
+    blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   },
   { timestamps: true }
 );

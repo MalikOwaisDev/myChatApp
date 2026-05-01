@@ -36,16 +36,30 @@ const messageHandler = (io, socket) => {
         return;
       }
 
-      const [message, sender] = await Promise.all([
-        messageService.createMessage(conversationId, socket.userId, text.trim()),
-        User.findById(socket.userId, 'name').lean(),
+      const otherId = String(conversation.participants.find((p) => String(p) !== socket.userId));
+
+      // Block check: sender blocked other, or other blocked sender
+      const [senderData, otherData] = await Promise.all([
+        User.findById(socket.userId, 'name blockedUsers').lean(),
+        User.findById(otherId, 'blockedUsers').lean(),
       ]);
+
+      const isBlocked =
+        senderData?.blockedUsers?.some((id) => String(id) === otherId) ||
+        otherData?.blockedUsers?.some((id) => String(id) === socket.userId);
+
+      if (isBlocked) {
+        socket.emit('message_error', { error: 'Cannot message this user' });
+        return;
+      }
+
+      const message = await messageService.createMessage(conversationId, socket.userId, text.trim());
 
       const payload = {
         _id: message._id,
         conversationId: message.conversationId,
         senderId: message.senderId,
-        senderName: sender?.name || 'Someone',
+        senderName: senderData?.name || 'Someone',
         text: message.text,
         messageType: message.messageType,
         status: message.status,

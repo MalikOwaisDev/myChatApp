@@ -14,6 +14,8 @@ const conversationSchema = new mongoose.Schema(
       ref: 'Message',
       default: null,
     },
+    mutedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    deletedFor: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   },
   { timestamps: true }
 );

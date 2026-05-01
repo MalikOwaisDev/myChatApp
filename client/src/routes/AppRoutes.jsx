@@ -10,6 +10,7 @@ import Dashboard from '../pages/Dashboard';
 import Profile from '../pages/Profile';
 import Search from '../pages/Search';
 import Chat from '../pages/Chat';
+import Settings from '../pages/Settings';
 import NotFound from '../pages/NotFound';
 
 const AppRoutes = () => (
@@ -32,6 +33,7 @@ const AppRoutes = () => (
         <Route path="/search" element={<Search />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/chat/:conversationId" element={<Chat />} />
+        <Route path="/settings" element={<Settings />} />
       </Route>
     </Route>
 
