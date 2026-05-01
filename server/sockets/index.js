@@ -4,6 +4,7 @@ const notificationHandler = require('./handlers/notification.handler');
 const messageHandler = require('./handlers/message.handler');
 const presenceHandler = require('./handlers/presence.handler');
 const typingHandler = require('./handlers/typing.handler');
+const messageStatusHandler = require('./handlers/messageStatus.handler');
 const { init } = require('../utils/socketEmitter');
 
 const initSocket = (httpServer, clientUrl) => {
@@ -18,6 +19,7 @@ const initSocket = (httpServer, clientUrl) => {
     messageHandler(io, socket);
     presenceHandler(io, socket);
     typingHandler(io, socket);
+    messageStatusHandler(io, socket);
   });
 
   return io;

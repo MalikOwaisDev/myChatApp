@@ -482,16 +482,36 @@
     color: #fff;
   }
 
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+
   &__time {
     font-size: 0.65rem;
     color: rgba(255, 255, 255, 0.5);
-    display: block;
-    text-align: right;
     line-height: 1;
   }
 
   &--theirs &__time {
     color: v.$color-text-muted;
+  }
+
+  &__status {
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.45);
+    flex-shrink: 0;
+
+    svg {
+      display: block;
+    }
+
+    &--seen {
+      color: #a5b4fc;
+    }
   }
 }
 

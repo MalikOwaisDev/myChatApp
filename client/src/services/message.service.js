@@ -13,3 +13,9 @@ export const getMessagesApi = (conversationId, page = 1, limit = 30) =>
 
 export const sendMessageApi = (conversationId, text) =>
   API.post(`/messages/${conversationId}`, { text });
+
+export const markDeliveredApi = (conversationId) =>
+  API.put('/messages/delivered', { conversationId });
+
+export const markSeenApi = (conversationId) =>
+  API.put('/messages/seen', { conversationId });

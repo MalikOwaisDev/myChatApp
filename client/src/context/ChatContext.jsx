@@ -7,7 +7,7 @@ import {
   getConversationsApi,
   createOrGetConversationApi,
 } from '../services/conversation.service';
-import { getMessagesApi } from '../services/message.service';
+import { getMessagesApi, markDeliveredApi, markSeenApi } from '../services/message.service';
 
 const ChatContext = createContext(null);
 
@@ -24,8 +24,8 @@ export const ChatProvider = ({ children }) => {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [messagePages, setMessagePages] = useState({});
   const [unreadCounts, setUnreadCounts] = useState({});
-  const [onlineUsers, setOnlineUsers] = useState({}); // { [userId]: true }
-  const [typingUsers, setTypingUsers] = useState({}); // { [conversationId]: true }
+  const [onlineUsers, setOnlineUsers] = useState({});
+  const [typingUsers, setTypingUsers] = useState({});
 
   const activeConvIdRef = useRef(activeConversationId);
   useEffect(() => { activeConvIdRef.current = activeConversationId; }, [activeConversationId]);
@@ -71,6 +71,8 @@ export const ChatProvider = ({ children }) => {
     if (!messages[conversationId]) {
       await loadMessages(conversationId, 1);
     }
+    // Mark all messages as seen when opening the conversation
+    markSeenApi(conversationId).catch(() => {});
     navigate(`/chat/${conversationId}`);
   }, [messages, loadMessages, navigate]);
 
@@ -122,7 +124,7 @@ export const ChatProvider = ({ children }) => {
         ).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
       );
 
-      // Clear typing indicator when message arrives
+      // Clear typing indicator when a message arrives
       setTypingUsers((prev) => {
         if (!prev[convId]) return prev;
         const next = { ...prev };
@@ -132,18 +134,55 @@ export const ChatProvider = ({ children }) => {
 
       const currentMyId = myIdRef.current;
       if (currentMyId && senderId !== currentMyId) {
-        if (convId !== activeConvIdRef.current) {
+        // Mark as delivered via socket (faster than REST for real-time messages)
+        socket.emit('mark_delivered', { conversationId: convId });
+
+        // If this conversation is currently open, mark as seen immediately
+        if (convId === activeConvIdRef.current) {
+          markSeenApi(convId).catch(() => {});
+        } else {
           setUnreadCounts((prev) => ({ ...prev, [convId]: (prev[convId] || 0) + 1 }));
+          const conv = conversationsRef.current.find((c) => String(c._id) === convId);
+          const sender = conv?.participants?.find((p) => String(p._id) !== currentMyId);
+          showToast(`New message from ${sender?.name || 'Someone'}`, 'info');
         }
-        const conv = conversationsRef.current.find((c) => String(c._id) === convId);
-        const sender = conv?.participants?.find((p) => String(p._id) !== currentMyId);
-        showToast(`New message from ${sender?.name || 'Someone'}`, 'info');
       }
     };
 
     socket.on('receive_message', handleReceiveMessage);
     return () => socket.off('receive_message', handleReceiveMessage);
   }, [myId, showToast]);
+
+  // ─── Real-time: message status updates ─────────────────────────────────────
+  useEffect(() => {
+    const updateMessageStatuses = (conversationId, messageIds, status) => {
+      const idSet = new Set(messageIds.map(String));
+      setMessages((prev) => {
+        const msgs = prev[conversationId];
+        if (!msgs) return prev;
+        const updated = msgs.map((m) =>
+          idSet.has(String(m._id)) ? { ...m, status } : m
+        );
+        return { ...prev, [conversationId]: updated };
+      });
+    };
+
+    const handleDelivered = ({ conversationId, messageIds }) => {
+      updateMessageStatuses(String(conversationId), messageIds, 'delivered');
+    };
+
+    const handleSeen = ({ conversationId, messageIds }) => {
+      updateMessageStatuses(String(conversationId), messageIds, 'seen');
+    };
+
+    socket.on('message_delivered', handleDelivered);
+    socket.on('message_seen', handleSeen);
+
+    return () => {
+      socket.off('message_delivered', handleDelivered);
+      socket.off('message_seen', handleSeen);
+    };
+  }, []);
 
   // ─── Real-time: presence ────────────────────────────────────────────────────
   useEffect(() => {

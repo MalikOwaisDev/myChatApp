@@ -237,3 +237,37 @@ Frontend runs on `http://localhost:5173` · Backend API on `http://localhost:500
 - `ChatHeader` — `@username` line replaced with live presence row: green dot + "Online" when active, grey dot + `@username` when offline
 - `ConversationItem` — green presence dot overlaid on avatar (bottom-right, bordered) when other user is online
 - `MessageInput` — debounced typing events: `typing_start` on first keystroke, auto `typing_stop` after 2 s of inactivity; immediate `typing_stop` on send or conversation change; cleans up on unmount
+
+---
+
+### Feature 9 — Message Status System (Sent · Delivered · Seen)
+
+**Backend** — 4 new files, 4 modified
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| PUT | `/api/messages/delivered` | Mark conversation messages as delivered *(recipient only)* |
+| PUT | `/api/messages/seen` | Mark conversation messages as seen *(recipient only)* |
+
+- `Message` model extended with `status` field: `enum ['sent', 'delivered', 'seen']`, default `'sent'`
+- `messageStatus.service.js` — `markDelivered` and `markSeen`: both use `updateMany` for batch efficiency, return `{ [senderId]: [messageId, ...] }` map used for targeted socket emission
+- `messageStatus.controller.js` — validates conversation membership inline, calls service, emits `message_delivered` / `message_seen` to each sender via `emitToUser`
+- `messageStatus.routes.js` — `PUT /delivered` and `PUT /seen`, mounted at `/api/messages` **before** the dynamic `/:conversationId` routes to prevent path collision
+- `messageStatus.handler.js` — socket handler: listens to `mark_delivered` client event, validates membership, calls service, emits `message_delivered` (lower-latency alternative to REST for real-time delivery confirmation)
+- Only the **recipient** can update status — `senderId !== userId` enforced at the service layer, preventing senders from faking their own read receipts
+
+**Socket events**
+
+| Direction | Event | Payload | Description |
+|-----------|-------|---------|-------------|
+| client → server | `mark_delivered` | `{ conversationId }` | Recipient signals message received (socket path) |
+| server → client | `message_delivered` | `{ conversationId, messageIds[] }` | Sender's UI updates ticks to delivered |
+| server → client | `message_seen` | `{ conversationId, messageIds[] }` | Sender's UI updates ticks to seen |
+
+**Frontend**
+
+- `ChatContext` — two new status update paths: (1) on `receive_message` from other user, emits `mark_delivered` via socket; (2) on `openConversation`, calls `PUT /messages/seen` via REST; listens to `message_delivered` and `message_seen` events and patches message status in state by `_id`
+- `MessageBubble` — `__footer` row aligns timestamp + status tick to the right; `MessageStatus` sub-component renders SVG ticks: single check (`sent`), double grey check (`delivered`), double purple check (`seen`, `color: #a5b4fc`)
+- Tick SVGs: custom inline paths — single checkmark `(1→4→11)`, double checkmark offset by 4px on x-axis
+- Status is never shown on received messages (only on `isMine` bubbles)
+- Existing messages loaded via REST already carry their DB `status`, so historical ticks render correctly on page load

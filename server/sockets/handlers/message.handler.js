@@ -48,6 +48,7 @@ const messageHandler = (io, socket) => {
         senderName: sender?.name || 'Someone',
         text: message.text,
         messageType: message.messageType,
+        status: message.status,
         createdAt: message.createdAt,
       };
 
