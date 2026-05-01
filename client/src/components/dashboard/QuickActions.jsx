@@ -40,8 +40,9 @@ const actions = [
   {
     label: 'Start a Chat',
     desc: 'Message someone directly',
+    to: '/chat',
     Icon: ChatIcon,
-    active: false,
+    active: true,
   },
   {
     label: 'Find People',

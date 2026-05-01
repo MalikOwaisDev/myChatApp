@@ -1,6 +1,7 @@
 const { Server } = require('socket.io');
 const socketAuth = require('./middleware/socketAuth');
 const notificationHandler = require('./handlers/notification.handler');
+const messageHandler = require('./handlers/message.handler');
 const { init } = require('../utils/socketEmitter');
 
 const initSocket = (httpServer, clientUrl) => {
@@ -10,7 +11,10 @@ const initSocket = (httpServer, clientUrl) => {
 
   init(io);
   io.use(socketAuth);
-  io.on('connection', (socket) => notificationHandler(io, socket));
+  io.on('connection', (socket) => {
+    notificationHandler(io, socket);
+    messageHandler(io, socket);
+  });
 
   return io;
 };

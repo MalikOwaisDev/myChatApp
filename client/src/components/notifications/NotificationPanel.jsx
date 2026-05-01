@@ -1,7 +1,7 @@
 import { useNotifications } from '../../context/NotificationContext';
 import NotificationItem from './NotificationItem';
 
-const NotificationPanel = () => {
+const NotificationPanel = ({ onClose }) => {
   const { notifications, clearAll } = useNotifications();
 
   return (
@@ -18,7 +18,9 @@ const NotificationPanel = () => {
         {notifications.length === 0 ? (
           <div className="notif-panel__empty">No notifications yet</div>
         ) : (
-          notifications.map((n) => <NotificationItem key={n.id} notification={n} />)
+          notifications.map((n) => (
+            <NotificationItem key={n.id} notification={n} onClose={onClose} />
+          ))
         )}
       </div>
     </div>

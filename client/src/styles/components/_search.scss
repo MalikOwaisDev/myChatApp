@@ -185,14 +185,24 @@
   border: 1px solid v.$color-border;
   border-radius: v.$radius-lg;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-  cursor: default;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  outline: none;
   transition: background v.$transition-base, border-color v.$transition-base, transform v.$transition-fast;
   animation: cardIn 0.2s ease both;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: rgba(139, 92, 246, 0.06);
     border-color: rgba(139, 92, 246, 0.2);
     transform: translateY(-1px);
+  }
+
+  &--loading,
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
   }
 
   &__avatar {

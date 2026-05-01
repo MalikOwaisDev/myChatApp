@@ -162,3 +162,44 @@ Frontend runs on `http://localhost:5173` · Backend API on `http://localhost:500
 - `UserResultCard` — avatar, name, username row with slide-in animation
 - `EmptyState` — shown when query returns no matches
 - "Find People" quick action on Dashboard now links to `/search`
+
+---
+
+### Feature 7 — Conversation System + Real-Time Messaging
+
+**Backend**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/conversations` | Create or fetch existing 1-to-1 conversation |
+| GET | `/api/conversations` | Get all conversations for logged-in user |
+| GET | `/api/conversations/:id` | Get conversation by ID *(participant only)* |
+| POST | `/api/messages/:conversationId` | Send a message *(participant only)* |
+| GET | `/api/messages/:conversationId` | Get paginated messages *(participant only)* |
+
+- `Conversation` model: participants array (2 users), lastMessage ref, timestamps · indexed on `participants` and `updatedAt`
+- `Message` model: conversationId, senderId, text, messageType · max 2000 chars · indexed on `conversationId + createdAt`
+- `conversationAccess` middleware validates participant membership before every message/conversation route
+- `message.service.js` handles create + `lastMessage` update atomically
+- Duplicate conversation prevention via `$all` + `$size: 2` query
+- `message.handler.js` socket handler: validates membership, persists via service, emits `receive_message` to all participant sockets (multi-tab support)
+- Pagination: `?page=1&limit=30` · messages returned oldest-first per page · max 50 per request
+
+**Frontend**
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/chat` | Chat | Conversation list with empty-state prompt |
+| `/chat/:conversationId` | Chat | Active conversation with real-time messaging |
+
+- `ChatContext` — manages conversations list, per-conversation message map, pagination state, real-time socket listener, and `startConversation` / `sendMessage` actions
+- `ChatLayout` — fixed sidebar + fluid chat window · responsive: sidebar/window swap on mobile via CSS transform
+- `ConversationList` — sorted by `updatedAt`, skeleton loaders, empty state
+- `ConversationItem` — avatar with initials fallback, last message preview truncated at 40 chars, timestamp, active-state left-border highlight
+- `ChatHeader` — participant avatar + name/username, back button visible on mobile
+- `MessageList` — auto-scroll on new messages, "Load earlier messages" pagination button, skeleton loaders
+- `MessageBubble` — sent (gradient) / received (glass) variants · timestamp · `bubbleIn` animation
+- `MessageInput` — `Enter` to send · `Shift+Enter` for newline · auto-clamp textarea · animated send button activates when text is present
+- Real-time flow: client emits `send_message` → server persists + emits `receive_message` to all participant sockets
+- Message deduplication by `_id` prevents duplicates across socket and REST responses
+- "Start a Chat" quick action on Dashboard now links to `/chat`

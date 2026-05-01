@@ -144,6 +144,17 @@
   &:last-child { border-bottom: none; }
   &:hover { background: rgba(255, 255, 255, 0.02); }
 
+  &--clickable {
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    outline: none;
+
+    &:hover {
+      background: rgba(139, 92, 246, 0.06);
+    }
+  }
+
   &__icon {
     width: 24px;
     height: 24px;
@@ -177,6 +188,21 @@
     background: rgba(251, 191, 36, 0.1);
     color: #fde68a;
     border: 1px solid rgba(251, 191, 36, 0.2);
+  }
+
+  &--message &__icon {
+    background: rgba(139, 92, 246, 0.1);
+    color: v.$color-primary;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+  }
+
+  &__arrow {
+    color: v.$color-text-muted;
+    font-size: 1.1rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-left: auto;
+    padding-left: v.$spacing-xs;
   }
 
   &__body {

@@ -42,7 +42,7 @@ const NotificationBell = () => {
           <span className="notif-bell__badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
         )}
       </button>
-      {open && <NotificationPanel />}
+      {open && <NotificationPanel onClose={() => setOpen(false)} />}
     </div>
   );
 };

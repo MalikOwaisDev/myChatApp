@@ -1,15 +1,26 @@
-import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import socket from '../socket/socket';
 import { useAuth } from './AuthContext';
 import { useUI } from './UIContext';
 
 const NotificationContext = createContext(null);
 
+const pushNotification = (setNotifications, setUnreadCount, entry) => {
+  setNotifications((prev) => {
+    if (prev.some((n) => n.id === entry.id)) return prev;
+    return [entry, ...prev].slice(0, 50);
+  });
+  setUnreadCount((c) => c + 1);
+};
+
 export const NotificationProvider = ({ children }) => {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { showToast } = useUI();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const myIdRef = useRef(null);
+  useEffect(() => { myIdRef.current = user?.id ? String(user.id) : null; }, [user]);
 
   useEffect(() => {
     if (!token) return;
@@ -20,16 +31,30 @@ export const NotificationProvider = ({ children }) => {
 
   useEffect(() => {
     const handleNotification = (data) => {
-      setNotifications((prev) => {
-        if (prev.some((n) => n.id === data.id)) return prev;
-        return [data, ...prev].slice(0, 50);
-      });
-      setUnreadCount((c) => c + 1);
+      pushNotification(setNotifications, setUnreadCount, data);
       showToast(data.message, data.type ?? 'info');
     };
 
+    const handleReceiveMessage = (message) => {
+      const senderId = String(message.senderId);
+      if (myIdRef.current && senderId === myIdRef.current) return;
+
+      const entry = {
+        id: `msg_${message._id}`,
+        type: 'message',
+        message: `${message.senderName || 'Someone'} sent you a message`,
+        conversationId: String(message.conversationId),
+        timestamp: message.createdAt,
+      };
+      pushNotification(setNotifications, setUnreadCount, entry);
+    };
+
     socket.on('notification', handleNotification);
-    return () => socket.off('notification', handleNotification);
+    socket.on('receive_message', handleReceiveMessage);
+    return () => {
+      socket.off('notification', handleNotification);
+      socket.off('receive_message', handleReceiveMessage);
+    };
   }, [showToast]);
 
   useEffect(() => {

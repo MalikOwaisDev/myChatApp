@@ -1,4 +1,6 @@
-const typeIcons = { success: '✓', error: '✕', info: 'i', warning: '!' };
+import { useNavigate } from 'react-router-dom';
+
+const typeIcons = { success: '✓', error: '✕', info: 'i', warning: '!', message: '✉' };
 
 const formatTime = (ts) => {
   if (!ts) return '';
@@ -9,17 +11,33 @@ const formatTime = (ts) => {
   return new Date(ts).toLocaleDateString();
 };
 
-const NotificationItem = ({ notification }) => {
-  const { type = 'info', message, timestamp } = notification;
+const NotificationItem = ({ notification, onClose }) => {
+  const { type = 'info', message, timestamp, conversationId } = notification;
+  const navigate = useNavigate();
+
+  const isClickable = Boolean(conversationId);
+
+  const handleClick = () => {
+    if (!isClickable) return;
+    navigate(`/chat/${conversationId}`);
+    onClose?.();
+  };
+
+  const Tag = isClickable ? 'button' : 'div';
 
   return (
-    <div className={`notif-item notif-item--${type}`}>
+    <Tag
+      className={`notif-item notif-item--${type}${isClickable ? ' notif-item--clickable' : ''}`}
+      onClick={isClickable ? handleClick : undefined}
+      type={isClickable ? 'button' : undefined}
+    >
       <span className="notif-item__icon">{typeIcons[type] ?? typeIcons.info}</span>
       <div className="notif-item__body">
         <p className="notif-item__message">{message}</p>
         <time className="notif-item__time">{formatTime(timestamp)}</time>
       </div>
-    </div>
+      {isClickable && <span className="notif-item__arrow">›</span>}
+    </Tag>
   );
 };
 

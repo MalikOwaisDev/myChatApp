@@ -1,0 +1,544 @@
+@use "../abstracts/variables" as v;
+@use "../abstracts/mixins" as m;
+
+// ─── Layout ───────────────────────────────────────────────────────────────────
+.chat-layout {
+  display: flex;
+  height: calc(100vh - var(--navbar-height, 60px));
+  overflow: hidden;
+  position: relative;
+}
+
+// ─── Conversation Sidebar ─────────────────────────────────────────────────────
+.conv-list {
+  width: 300px;
+  flex-shrink: 0;
+  @include m.flex-col;
+  @include m.glass;
+  border-right: 1px solid v.$color-border;
+  overflow: hidden;
+
+  @include m.respond-to(md) {
+    width: 100%;
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    transition: transform v.$transition-base;
+
+    .chat-window--active ~ & {
+      transform: translateX(-100%);
+    }
+  }
+
+  &__header {
+    padding: v.$spacing-lg v.$spacing-xl;
+    border-bottom: 1px solid v.$color-border;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: v.$font-size-lg;
+    font-weight: 700;
+    color: v.$color-text-heading;
+    letter-spacing: -0.02em;
+  }
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: v.$spacing-sm 0;
+
+    &::-webkit-scrollbar { width: 4px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb { background: v.$color-border; border-radius: 2px; }
+  }
+
+  &__empty {
+    @include m.flex-col;
+    @include m.flex-center;
+    gap: v.$spacing-xs;
+    padding: v.$spacing-3xl v.$spacing-xl;
+    text-align: center;
+
+    p {
+      font-size: v.$font-size-sm;
+      color: v.$color-text-muted;
+      line-height: 1.5;
+    }
+  }
+
+  &__loading {
+    @include m.flex-col;
+    gap: v.$spacing-xs;
+    padding: v.$spacing-sm;
+  }
+
+  &__skeleton {
+    height: 64px;
+    border-radius: v.$radius-md;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.06) 50%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease infinite;
+  }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// ─── Conversation Item ────────────────────────────────────────────────────────
+.conv-item {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-md;
+  width: 100%;
+  padding: v.$spacing-md v.$spacing-xl;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background v.$transition-fast;
+  border-left: 2px solid transparent;
+
+  &:hover {
+    background: rgba(139, 92, 246, 0.04);
+  }
+
+  &--active {
+    background: rgba(139, 92, 246, 0.08);
+    border-left-color: v.$color-primary;
+  }
+
+  &__body {
+    @include m.flex-col;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__top {
+    @include m.flex-between;
+    gap: v.$spacing-xs;
+  }
+
+  &__name {
+    font-size: v.$font-size-sm;
+    font-weight: 600;
+    color: v.$color-text-heading;
+    @include m.truncate;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-xs;
+    flex-shrink: 0;
+  }
+
+  &__time {
+    font-size: v.$font-size-xs;
+    color: v.$color-text-muted;
+  }
+
+  &__badge {
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: v.$radius-full;
+    background: v.$gradient-primary;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 800;
+    @include m.flex-center;
+    line-height: 1;
+    animation: badgeIn 0.2s ease;
+  }
+
+  @keyframes badgeIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  &__preview {
+    font-size: v.$font-size-xs;
+    color: v.$color-text-muted;
+    @include m.truncate;
+    line-height: 1.4;
+
+    &--unread {
+      color: v.$color-text-body;
+      font-weight: 500;
+    }
+  }
+}
+
+// ─── Conversation Avatar ──────────────────────────────────────────────────────
+.conv-avatar {
+  border-radius: 50%;
+  background: v.$gradient-primary;
+  padding: 2px;
+  flex-shrink: 0;
+  position: relative;
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__initials {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(15, 20, 40, 0.9);
+    @include m.flex-center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: v.$color-text-heading;
+    letter-spacing: -0.02em;
+    display: flex;
+  }
+}
+
+// ─── Chat Window ──────────────────────────────────────────────────────────────
+.chat-window {
+  flex: 1;
+  @include m.flex-col;
+  overflow: hidden;
+  min-width: 0;
+
+  @include m.respond-to(md) {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    transform: translateX(100%);
+    transition: transform v.$transition-base;
+    background: v.$color-bg-deep;
+
+    &--active {
+      transform: translateX(0);
+    }
+  }
+
+  &__empty {
+    flex: 1;
+    @include m.flex-col;
+    @include m.flex-center;
+    gap: v.$spacing-lg;
+    padding: v.$spacing-3xl;
+    text-align: center;
+  }
+
+  &__empty-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(139, 92, 246, 0.08);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    @include m.flex-center;
+
+    svg {
+      width: 28px;
+      height: 28px;
+      stroke: v.$color-primary;
+    }
+  }
+
+  &__empty-title {
+    font-size: v.$font-size-lg;
+    font-weight: 600;
+    color: v.$color-text-heading;
+  }
+
+  &__empty-sub {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
+    max-width: 280px;
+    line-height: 1.6;
+  }
+}
+
+// ─── Chat Header ──────────────────────────────────────────────────────────────
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-md;
+  padding: v.$spacing-md v.$spacing-xl;
+  border-bottom: 1px solid v.$color-border;
+  @include m.glass;
+  flex-shrink: 0;
+
+  &__back {
+    display: none;
+    background: none;
+    border: none;
+    color: v.$color-text-muted;
+    cursor: pointer;
+    padding: v.$spacing-xs;
+    border-radius: v.$radius-sm;
+    transition: color v.$transition-fast;
+    flex-shrink: 0;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      display: block;
+    }
+
+    &:hover { color: v.$color-text-heading; }
+
+    @include m.respond-to(md) { display: flex; }
+  }
+
+  &__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: v.$gradient-primary;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__initials {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(15, 20, 40, 0.9);
+    @include m.flex-center;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: v.$color-text-heading;
+  }
+
+  &__info {
+    @include m.flex-col;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: v.$font-size-base;
+    font-weight: 700;
+    color: v.$color-text-heading;
+    @include m.truncate;
+  }
+
+  &__username {
+    font-size: v.$font-size-xs;
+    color: v.$color-primary;
+  }
+}
+
+// ─── Message List ─────────────────────────────────────────────────────────────
+.msg-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: v.$spacing-lg v.$spacing-xl;
+  @include m.flex-col;
+  gap: v.$spacing-xs;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: v.$color-border; border-radius: 2px; }
+
+  &--loading {
+    justify-content: flex-end;
+  }
+
+  &__empty {
+    flex: 1;
+    @include m.flex-center;
+
+    p {
+      font-size: v.$font-size-sm;
+      color: v.$color-text-muted;
+    }
+  }
+
+  &__load-more {
+    align-self: center;
+    margin-bottom: v.$spacing-md;
+    padding: v.$spacing-xs v.$spacing-lg;
+    background: rgba(139, 92, 246, 0.08);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: v.$radius-full;
+    color: v.$color-primary;
+    font-size: v.$font-size-xs;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background v.$transition-fast, border-color v.$transition-fast;
+
+    &:hover:not(:disabled) {
+      background: rgba(139, 92, 246, 0.15);
+      border-color: rgba(139, 92, 246, 0.35);
+    }
+
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+
+  &__skeleton {
+    height: 44px;
+    width: 55%;
+    border-radius: v.$radius-lg;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.06) 50%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease infinite;
+
+    &--mine {
+      align-self: flex-end;
+    }
+  }
+}
+
+// ─── Message Bubble ───────────────────────────────────────────────────────────
+.msg-bubble-wrap {
+  display: flex;
+  justify-content: flex-start;
+  animation: bubbleIn 0.15s ease both;
+
+  &--mine {
+    justify-content: flex-end;
+  }
+}
+
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.msg-bubble {
+  max-width: 72%;
+  padding: v.$spacing-sm v.$spacing-md;
+  border-radius: v.$radius-lg;
+  position: relative;
+
+  &--theirs {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid v.$color-border;
+    border-bottom-left-radius: v.$radius-sm;
+  }
+
+  &--mine {
+    background: v.$gradient-primary;
+    border-bottom-right-radius: v.$radius-sm;
+  }
+
+  &__text {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-heading;
+    line-height: 1.55;
+    word-break: break-word;
+    white-space: pre-wrap;
+    margin-bottom: v.$spacing-xs;
+  }
+
+  &--mine &__text {
+    color: #fff;
+  }
+
+  &__time {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.5);
+    display: block;
+    text-align: right;
+    line-height: 1;
+  }
+
+  &--theirs &__time {
+    color: v.$color-text-muted;
+  }
+}
+
+// ─── Message Input ────────────────────────────────────────────────────────────
+.msg-input {
+  display: flex;
+  align-items: flex-end;
+  gap: v.$spacing-sm;
+  padding: v.$spacing-md v.$spacing-xl;
+  border-top: 1px solid v.$color-border;
+  @include m.glass;
+  flex-shrink: 0;
+
+  &__field {
+    flex: 1;
+    padding: v.$spacing-sm v.$spacing-md;
+    @include m.glass;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-lg;
+    color: v.$color-text-heading;
+    font-size: v.$font-size-sm;
+    font-family: inherit;
+    outline: none;
+    resize: none;
+    max-height: 120px;
+    overflow-y: auto;
+    line-height: 1.55;
+    transition: border-color v.$transition-base, box-shadow v.$transition-base;
+
+    &::placeholder { color: v.$color-text-muted; }
+
+    &:focus {
+      border-color: v.$color-border-focus;
+      box-shadow: v.$shadow-input-focus;
+    }
+
+    &::-webkit-scrollbar { width: 3px; }
+    &::-webkit-scrollbar-thumb { background: v.$color-border; border-radius: 2px; }
+  }
+
+  &__send {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(139, 92, 246, 0.12);
+    color: v.$color-text-muted;
+    @include m.flex-center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background v.$transition-fast, color v.$transition-fast, transform v.$transition-fast;
+
+    svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      display: block;
+    }
+
+    &--active {
+      background: v.$gradient-primary;
+      color: #fff;
+      box-shadow: v.$shadow-btn;
+    }
+
+    &--active:hover {
+      box-shadow: v.$shadow-btn-hover;
+      transform: scale(1.05);
+    }
+
+    &:disabled { cursor: not-allowed; }
+  }
+}

@@ -9,6 +9,7 @@ import ResetPassword from '../pages/ResetPassword';
 import Dashboard from '../pages/Dashboard';
 import Profile from '../pages/Profile';
 import Search from '../pages/Search';
+import Chat from '../pages/Chat';
 import NotFound from '../pages/NotFound';
 
 const AppRoutes = () => (
@@ -29,6 +30,8 @@ const AppRoutes = () => (
         <Route path="/" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/search" element={<Search />} />
+        <Route path="/chat" element={<Chat />} />
+        <Route path="/chat/:conversationId" element={<Chat />} />
       </Route>
     </Route>
 
