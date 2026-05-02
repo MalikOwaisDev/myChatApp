@@ -1,14 +1,12 @@
-﻿@use "../abstracts/variables" as v;
+@use "../abstracts/variables" as v;
 @use "../abstracts/mixins" as m;
 
-// Keyframes
 @keyframes spin    { to { transform: rotate(360deg); } }
 @keyframes fadeUp  { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes orb1    { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(40px,-30px) scale(1.1); } }
 @keyframes orb2    { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-30px,40px) scale(1.08); } }
 @keyframes orb3    { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(20px,25px) scale(1.05); } }
 
-// Page wrapper
 .auth-wrapper {
   @include m.flex-center;
   min-height: 100vh;
@@ -16,9 +14,9 @@
   background: v.$gradient-bg;
   position: relative;
   overflow: hidden;
+  transition: background 0.3s ease;
 }
 
-// Animated orbs
 .auth-orb {
   position: fixed;
   border-radius: 50%;
@@ -27,19 +25,19 @@
   z-index: 0;
 
   &--1 {
-    width: 500px;
-    height: 500px;
-    top: -150px;
-    left: -150px;
-    background: radial-gradient(circle, rgba(139,92,246,0.18) 0%, transparent 70%);
+    width: 520px;
+    height: 520px;
+    top: -160px;
+    left: -160px;
+    background: radial-gradient(circle, rgba(var(--accent-rgb), 0.18) 0%, transparent 70%);
     animation: orb1 12s ease-in-out infinite;
   }
   &--2 {
-    width: 400px;
-    height: 400px;
-    bottom: -100px;
-    right: -100px;
-    background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+    width: 420px;
+    height: 420px;
+    bottom: -110px;
+    right: -110px;
+    background: radial-gradient(circle, rgba(var(--accent-end-rgb), 0.14) 0%, transparent 70%);
     animation: orb2 15s ease-in-out infinite;
   }
   &--3 {
@@ -48,12 +46,11 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(167,139,250,0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(var(--accent-rgb), 0.07) 0%, transparent 70%);
     animation: orb3 10s ease-in-out infinite;
   }
 }
 
-// Card
 .auth-card {
   @include m.glass;
   position: relative;
@@ -66,18 +63,7 @@
   box-shadow: v.$shadow-card;
   animation: fadeUp 0.5s ease both;
 
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, rgba(139,92,246,0.4), rgba(99,102,241,0.1), transparent 60%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
+  @include m.card-border-glow;
 
   @include m.respond-to(sm) {
     padding: v.$spacing-2xl v.$spacing-xl;
@@ -93,8 +79,8 @@
     width: 56px;
     height: 56px;
     border-radius: v.$radius-lg;
-    background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(99,102,241,0.1));
-    border: 1px solid rgba(139,92,246,0.3);
+    background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.20), rgba(var(--accent-end-rgb), 0.10));
+    border: 1px solid rgba(var(--accent-rgb), 0.28);
     margin: 0 auto v.$spacing-lg;
     font-size: 1.5rem;
   }
@@ -119,7 +105,6 @@
   }
 }
 
-// Input
 .input-group {
   @include m.flex-col;
   gap: 0.4rem;
@@ -145,19 +130,14 @@
   color: v.$color-text-heading;
   font-size: v.$font-size-base;
   outline: none;
-  transition:
-    border-color v.$transition-base,
-    box-shadow v.$transition-base,
-    background v.$transition-base;
+  transition: border-color v.$transition-base, box-shadow v.$transition-base, background v.$transition-base;
 
   &::placeholder {
     color: v.$color-text-muted;
     font-size: v.$font-size-sm;
   }
 
-  &:focus {
-    @include m.focus-ring;
-  }
+  &:focus { @include m.focus-ring; }
 
   &--error {
     border-color: rgba(248, 113, 113, 0.5);
@@ -168,9 +148,7 @@
     }
   }
 
-  &--has-icon {
-    padding-right: 2.75rem;
-  }
+  &--has-icon { padding-right: 2.75rem; }
 }
 
 .input-eye-btn {
@@ -185,7 +163,6 @@
   padding: 0.2rem;
 
   &:hover { color: v.$color-text-label; }
-
   svg { width: 17px; height: 17px; }
 }
 
@@ -202,7 +179,6 @@
   margin-top: -0.25rem;
 }
 
-// Button
 .auth-btn {
   @include m.flex-center;
   gap: v.$spacing-sm;
@@ -216,28 +192,13 @@
   letter-spacing: 0.01em;
   border-radius: v.$radius-md;
   box-shadow: v.$shadow-btn;
-  transition:
-    opacity v.$transition-base,
-    box-shadow v.$transition-base,
-    transform v.$transition-fast;
+  transition: opacity v.$transition-base, box-shadow v.$transition-base, transform v.$transition-fast;
 
-  &:hover:not(:disabled) {
-    box-shadow: v.$shadow-btn-hover;
-    opacity: 0.92;
-  }
-
-  &:active:not(:disabled) {
-    transform: scale(0.985);
-  }
-
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
+  &:hover:not(:disabled)   { box-shadow: v.$shadow-btn-hover; opacity: 0.92; }
+  &:active:not(:disabled)  { transform: scale(0.985); }
+  &:disabled               { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 }
 
-// Feedback
 .error-message {
   display: flex;
   align-items: flex-start;
@@ -264,7 +225,6 @@
   line-height: 1.5;
 }
 
-// Footer
 .auth-footer {
   margin-top: v.$spacing-xl;
   text-align: center;
@@ -279,10 +239,8 @@
   }
 }
 
-// Loader
 .loader { @include m.spinner; }
 
-// Inline link
 .auth-link {
   font-size: v.$font-size-sm;
   color: v.$color-text-link;

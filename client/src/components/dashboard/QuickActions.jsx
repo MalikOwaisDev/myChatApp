@@ -54,8 +54,9 @@ const actions = [
   {
     label: 'Settings',
     desc: 'Manage your preferences',
+    to: '/settings',
     Icon: SettingsIcon,
-    active: false,
+    active: true,
   },
 ];
 

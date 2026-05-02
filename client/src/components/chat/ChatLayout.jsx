@@ -7,6 +7,7 @@ import ChatHeader from './ChatHeader';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import TypingIndicator from './TypingIndicator';
+import ChatRequestBanner from './ChatRequestBanner';
 
 const ChatLayout = () => {
   const { conversationId } = useParams();
@@ -14,10 +15,12 @@ const ChatLayout = () => {
   const {
     conversations,
     getOtherParticipant,
-    loadMessages,
-    messages,
+    activateConversation,
+    deactivateConversation,
     onlineUsers,
     typingUsers,
+    getRequestForConversation,
+    respondToRequest,
   } = useChat();
 
   const myId = user?.id ? String(user.id) : null;
@@ -27,11 +30,18 @@ const ChatLayout = () => {
   const isTyping = conversationId ? !!typingUsers[conversationId] : false;
   const isMuted = myId && activeConv?.mutedBy?.some((id) => String(id) === myId);
 
+  const pendingRequest = conversationId ? getRequestForConversation(conversationId) : null;
+
+  // Activate conversation on every URL change (handles notification clicks,
+  // direct URL access, and sidebar clicks alike).
   useEffect(() => {
-    if (conversationId && !messages[conversationId]) {
-      loadMessages(conversationId);
+    if (conversationId) {
+      activateConversation(conversationId);
     }
-  }, [conversationId, messages, loadMessages]);
+    return () => {
+      deactivateConversation();
+    };
+  }, [conversationId, activateConversation, deactivateConversation]);
 
   return (
     <div className="chat-layout">
@@ -46,6 +56,12 @@ const ChatLayout = () => {
               conversationId={conversationId}
               isMuted={!!isMuted}
             />
+            {pendingRequest && (
+              <ChatRequestBanner
+                request={pendingRequest}
+                onRespond={respondToRequest}
+              />
+            )}
             <MessageList conversationId={conversationId} />
             {isTyping && <TypingIndicator name={otherParticipant?.name} />}
             <MessageInput conversationId={conversationId} />

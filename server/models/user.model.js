@@ -47,6 +47,7 @@ const userSchema = new mongoose.Schema(
       soundEnabled: { type: Boolean, default: true },
     },
     blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    isPublic: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

@@ -21,16 +21,15 @@
     height: 700px;
     top: -200px;
     right: -200px;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(var(--accent-rgb), 0.12) 0%, transparent 70%);
     animation: dob1 20s ease-in-out infinite;
   }
-
   &--2 {
     width: 500px;
     height: 500px;
     bottom: -150px;
     left: -150px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.09) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(var(--accent-end-rgb), 0.09) 0%, transparent 70%);
     animation: dob2 26s ease-in-out infinite;
   }
 }
@@ -39,7 +38,6 @@
   0%, 100% { transform: translate(0, 0) scale(1); }
   50%       { transform: translate(-40px, 40px) scale(1.08); }
 }
-
 @keyframes dob2 {
   0%, 100% { transform: translate(0, 0) scale(1); }
   50%       { transform: translate(30px, -30px) scale(0.95); }
@@ -63,7 +61,7 @@
   &__greeting {
     font-size: v.$font-size-sm;
     font-weight: 600;
-    color: v.$color-primary;
+    color: v.$color-text-link;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     margin-bottom: v.$spacing-xs;
@@ -124,18 +122,7 @@
   gap: v.$spacing-sm;
   text-align: center;
 
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(99, 102, 241, 0.08), transparent 60%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
+  @include m.card-border-glow;
 
   &__avatar {
     width: 80px;
@@ -159,7 +146,7 @@
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background: rgba(15, 20, 40, 0.9);
+    background: var(--bg-avatar);
     @include m.flex-center;
     font-size: 1.5rem;
     font-weight: 700;
@@ -178,7 +165,7 @@
   &__username {
     font-size: v.$font-size-sm;
     font-weight: 600;
-    color: v.$color-primary;
+    color: v.$color-text-link;
   }
 
   &__email {
@@ -192,7 +179,7 @@
     gap: 0.35rem;
     padding: 0.25rem 0.75rem;
     background: rgba(52, 211, 153, 0.08);
-    border: 1px solid rgba(52, 211, 153, 0.2);
+    border: 1px solid rgba(52, 211, 153, 0.20);
     border-radius: v.$radius-full;
     font-size: v.$font-size-xs;
     font-weight: 600;
@@ -218,18 +205,7 @@
   padding: v.$spacing-2xl;
   position: relative;
 
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), transparent 60%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
+  @include m.card-border-glow;
 
   &__title {
     font-size: v.$font-size-xs;
@@ -257,15 +233,15 @@
   gap: v.$spacing-md;
   padding: v.$spacing-md;
   border-radius: v.$radius-lg;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-hover);
   border: 1px solid v.$color-border;
   cursor: pointer;
   text-decoration: none;
   transition: background v.$transition-base, border-color v.$transition-base, transform v.$transition-fast;
 
   &:hover:not(.action-item--disabled) {
-    background: rgba(139, 92, 246, 0.08);
-    border-color: rgba(139, 92, 246, 0.25);
+    background: rgba(var(--accent-rgb), 0.08);
+    border-color: var(--border-strong);
     transform: translateY(-1px);
   }
 
@@ -281,24 +257,15 @@
     background: v.$gradient-primary;
     @include m.flex-center;
     flex-shrink: 0;
-
-    svg {
-      width: 18px;
-      height: 18px;
-      stroke: #fff;
-    }
+    svg { width: 18px; height: 18px; stroke: #fff; }
   }
 
   &--disabled &__icon {
-    background: rgba(255, 255, 255, 0.05);
-
+    background: var(--bg-btn-secondary);
     svg { stroke: v.$color-text-muted; }
   }
 
-  &__body {
-    @include m.flex-col;
-    gap: 2px;
-  }
+  &__body  { @include m.flex-col; gap: 2px; }
 
   &__label {
     font-size: v.$font-size-sm;
@@ -319,7 +286,7 @@
     color: v.$color-text-muted;
     padding: 1px 6px;
     border-radius: v.$radius-sm;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--bg-hover);
     border: 1px solid v.$color-border;
     margin-top: 3px;
     width: fit-content;
@@ -332,13 +299,8 @@
   grid-template-columns: repeat(3, 1fr);
   gap: v.$spacing-lg;
 
-  @include m.respond-to(md) {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  @include m.respond-to(sm) {
-    grid-template-columns: 1fr;
-  }
+  @include m.respond-to(md) { grid-template-columns: 1fr 1fr; }
+  @include m.respond-to(sm) { grid-template-columns: 1fr; }
 }
 
 // ─── Stat Card ────────────────────────────────────────────────────────────────
@@ -347,38 +309,22 @@
   border: 1px solid v.$color-border;
   border-radius: v.$radius-xl;
   box-shadow: v.$shadow-card;
-  padding: v.$spacing-xl v.$spacing-xl;
+  padding: v.$spacing-xl;
   position: relative;
   @include m.flex-col;
   gap: v.$spacing-xs;
 
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), transparent 60%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
+  @include m.card-border-glow;
 
   &__icon {
     width: 32px;
     height: 32px;
     border-radius: v.$radius-md;
-    background: rgba(139, 92, 246, 0.1);
-    border: 1px solid rgba(139, 92, 246, 0.15);
+    background: rgba(var(--accent-rgb), 0.10);
+    border: 1px solid rgba(var(--accent-rgb), 0.18);
     @include m.flex-center;
     margin-bottom: v.$spacing-xs;
-
-    svg {
-      width: 15px;
-      height: 15px;
-      stroke: v.$color-primary;
-    }
+    svg { width: 15px; height: 15px; stroke: v.$color-text-link; }
   }
 
   &__value {

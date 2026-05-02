@@ -7,6 +7,10 @@
   margin: 0 auto;
   padding: v.$spacing-3xl v.$spacing-xl;
 
+  @include m.respond-to(sm) {
+    padding: v.$spacing-2xl v.$spacing-md;
+  }
+
   &__header {
     margin-bottom: v.$spacing-3xl;
   }
@@ -36,6 +40,8 @@
   border: 1px solid v.$color-border;
   border-radius: v.$radius-lg;
   overflow: hidden;
+  position: relative;
+  @include m.card-border-glow;
 
   &__title {
     padding: v.$spacing-lg v.$spacing-xl;
@@ -47,9 +53,7 @@
     border-bottom: 1px solid v.$color-border;
   }
 
-  &__body {
-    padding: v.$spacing-sm 0;
-  }
+  &__body   { padding: v.$spacing-sm 0; }
 
   &__label {
     display: block;
@@ -68,16 +72,18 @@
   }
 }
 
-// ─── Settings Row (toggle row) ────────────────────────────────────────────────
+// ─── Settings Row ─────────────────────────────────────────────────────────────
 .settings-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: v.$spacing-lg;
   padding: v.$spacing-md v.$spacing-xl;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid v.$color-border;
+  transition: background v.$transition-fast;
 
   &:last-child { border-bottom: none; }
+  &:hover { background: var(--bg-hover); }
 
   &__info {
     @include m.flex-col;
@@ -115,7 +121,7 @@
     width: 44px;
     height: 24px;
     border-radius: v.$radius-full;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--bg-btn-secondary);
     border: 1px solid v.$color-border;
     transition: background v.$transition-base, border-color v.$transition-base;
     display: flex;
@@ -127,7 +133,7 @@
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.4);
+    background: v.$color-text-muted;
     transition: transform v.$transition-base, background v.$transition-base;
   }
 
@@ -153,6 +159,11 @@
   gap: v.$spacing-xl;
   padding: v.$spacing-lg v.$spacing-xl;
   align-items: flex-start;
+
+  @include m.respond-to(sm) {
+    flex-direction: column;
+    gap: v.$spacing-md;
+  }
 
   &__avatar {
     width: 56px;
@@ -192,6 +203,80 @@
   }
 }
 
+// ─── Theme Picker ─────────────────────────────────────────────────────────────
+.theme-picker {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: v.$spacing-md;
+  padding: v.$spacing-md v.$spacing-xl v.$spacing-lg;
+
+  @include m.respond-to(sm) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.theme-card {
+  @include m.flex-col;
+  align-items: center;
+  gap: v.$spacing-xs;
+  padding: v.$spacing-md v.$spacing-sm;
+  border-radius: v.$radius-lg;
+  border: 1px solid v.$color-border;
+  background: var(--bg-hover);
+  cursor: pointer;
+  position: relative;
+  transition: border-color v.$transition-base, background v.$transition-fast, transform v.$transition-fast;
+
+  &:hover:not(&--active) {
+    border-color: var(--border-strong);
+    background: rgba(var(--accent-rgb), 0.06);
+    transform: translateY(-2px);
+  }
+
+  &--active {
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.08);
+    transform: translateY(-2px);
+  }
+
+  &__swatch {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 2px;
+  }
+
+  &__dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    display: block;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
+  }
+
+  &__label {
+    font-size: v.$font-size-xs;
+    font-weight: 600;
+    color: v.$color-text-muted;
+
+    .theme-card--active & {
+      color: var(--accent);
+    }
+  }
+
+  &__check {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--accent);
+    @include m.flex-center;
+    svg { width: 8px; height: 8px; stroke: #fff; }
+  }
+}
+
 // ─── Blocked Users List ───────────────────────────────────────────────────────
 .blocked-list {
   list-style: none;
@@ -204,7 +289,7 @@
     justify-content: space-between;
     gap: v.$spacing-md;
     padding: v.$spacing-sm v.$spacing-xl;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid v.$color-border;
 
     &:last-child { border-bottom: none; }
   }
@@ -259,9 +344,9 @@
     flex-shrink: 0;
     padding: v.$spacing-xs v.$spacing-md;
     border-radius: v.$radius-sm;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    border: 1px solid rgba(239, 68, 68, 0.30);
     background: rgba(239, 68, 68, 0.06);
-    color: #f87171;
+    color: v.$color-error;
     font-size: v.$font-size-xs;
     font-weight: 600;
     cursor: pointer;
@@ -269,7 +354,7 @@
 
     &:hover:not(:disabled) {
       background: rgba(239, 68, 68, 0.12);
-      border-color: rgba(239, 68, 68, 0.5);
+      border-color: rgba(239, 68, 68, 0.50);
     }
 
     &:disabled { opacity: 0.5; cursor: not-allowed; }

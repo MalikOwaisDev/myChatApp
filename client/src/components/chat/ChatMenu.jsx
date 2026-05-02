@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useChat } from '../../context/ChatContext';
 import { useSettings } from '../../context/SettingsContext';
@@ -18,7 +19,9 @@ const ChatMenu = ({ conversationId, participant, isMuted }) => {
   const [open, setOpen] = useState(false);
   const [confirm, setConfirm] = useState(CONFIRM_NONE);
   const [actionLoading, setActionLoading] = useState(false);
-  const menuRef = useRef(null);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
+  const triggerRef = useRef(null);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
   const { muteConversation, unmuteConversation, deleteConversation, clearMessages } = useChat();
@@ -27,13 +30,43 @@ const ChatMenu = ({ conversationId, participant, isMuted }) => {
   const participantId = participant?._id ? String(participant._id) : null;
   const blocked = participantId ? isBlocked(participantId) : false;
 
+  const openMenu = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setDropdownPos({
+        top: rect.bottom + 6,
+        right: window.innerWidth - rect.right,
+      });
+    }
+    setOpen(true);
+  };
+
+  // Close on outside click
   useEffect(() => {
+    if (!open) return;
     const handleOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) setOpen(false);
+      if (
+        dropdownRef.current && !dropdownRef.current.contains(e.target) &&
+        triggerRef.current && !triggerRef.current.contains(e.target)
+      ) {
+        setOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleOutside);
     return () => document.removeEventListener('mousedown', handleOutside);
-  }, []);
+  }, [open]);
+
+  // Close on scroll/resize so it doesn't drift
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+    return () => {
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+    };
+  }, [open]);
 
   const run = async (action) => {
     setActionLoading(true);
@@ -64,52 +97,61 @@ const ChatMenu = ({ conversationId, participant, isMuted }) => {
     block: { title: `Block ${participant?.name || 'User'}`, message: 'They will no longer be able to send you messages.', confirmLabel: 'Block', danger: true },
   };
 
-  return (
-    <div className="chat-menu" ref={menuRef}>
+  const dropdown = open && createPortal(
+    <div
+      ref={dropdownRef}
+      className="chat-menu__dropdown"
+      role="menu"
+      style={{ position: 'fixed', top: dropdownPos.top, right: dropdownPos.right, zIndex: 9999 }}
+    >
       <button
+        className="chat-menu__item"
+        onClick={() => { setOpen(false); isMuted ? actions.unmute() : actions.mute(); }}
+        type="button"
+      >
+        {isMuted ? 'Unmute Conversation' : 'Mute Conversation'}
+      </button>
+      <button
+        className="chat-menu__item"
+        onClick={() => { setOpen(false); setConfirm('clear'); }}
+        type="button"
+      >
+        Clear Chat
+      </button>
+      <button
+        className="chat-menu__item chat-menu__item--danger"
+        onClick={() => { setOpen(false); setConfirm('delete'); }}
+        type="button"
+      >
+        Delete Conversation
+      </button>
+      {participantId && (
+        <button
+          className="chat-menu__item chat-menu__item--danger"
+          onClick={() => { setOpen(false); blocked ? actions.unblock() : setConfirm('block'); }}
+          type="button"
+        >
+          {blocked ? 'Unblock User' : 'Block User'}
+        </button>
+      )}
+    </div>,
+    document.body
+  );
+
+  return (
+    <div className="chat-menu">
+      <button
+        ref={triggerRef}
         type="button"
         className="chat-menu__trigger"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => (open ? setOpen(false) : openMenu())}
         aria-label="Chat options"
         aria-expanded={open}
       >
         <DotsIcon />
       </button>
 
-      {open && (
-        <div className="chat-menu__dropdown" role="menu">
-          <button
-            className="chat-menu__item"
-            onClick={() => { setOpen(false); isMuted ? actions.unmute() : setConfirm(null) || actions.mute(); }}
-            type="button"
-          >
-            {isMuted ? 'Unmute Conversation' : 'Mute Conversation'}
-          </button>
-          <button
-            className="chat-menu__item"
-            onClick={() => { setOpen(false); setConfirm('clear'); }}
-            type="button"
-          >
-            Clear Chat
-          </button>
-          <button
-            className="chat-menu__item chat-menu__item--danger"
-            onClick={() => { setOpen(false); setConfirm('delete'); }}
-            type="button"
-          >
-            Delete Conversation
-          </button>
-          {participantId && (
-            <button
-              className="chat-menu__item chat-menu__item--danger"
-              onClick={() => { setOpen(false); blocked ? actions.unblock() : setConfirm('block'); }}
-              type="button"
-            >
-              {blocked ? 'Unblock User' : 'Block User'}
-            </button>
-          )}
-        </div>
-      )}
+      {dropdown}
 
       {confirm && confirmConfigs[confirm] && (
         <ConfirmModal

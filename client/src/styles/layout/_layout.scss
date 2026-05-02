@@ -1,8 +1,269 @@
 @use '../abstracts/variables' as v;
 @use '../abstracts/mixins' as m;
 
-:root {
-  --navbar-height: 60px;
+// ═══════════════════════════════════════════════════════════════════════════════
+// CSS CUSTOM PROPERTIES — one block per theme
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── Ocean (Deep Navy + Blue) — default ───────────────────────────────────────
+:root,
+[data-theme="ocean"] {
+  --navbar-height:          60px;
+  --accent:                 #3B82F6;
+  --accent-rgb:             59, 130, 246;
+  --accent-end:             #8B5CF6;
+  --accent-end-rgb:         139, 92, 246;
+  --accent-hover:           #2563EB;
+  --gradient-btn:           linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+  --gradient-btn-hover:     linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+
+  --bg-base:                #040C1A;
+  --bg-surface:             rgba(8, 18, 45, 0.90);
+  --bg-avatar:              rgba(8, 18, 45, 0.95);
+  --bg-dropdown:            rgba(6, 14, 36, 0.97);
+  --bg-overlay:             rgba(4, 10, 25, 0.72);
+  --bg-overlay-hard:        rgba(0, 0, 0, 0.78);
+  --bg-hover:               rgba(255, 255, 255, 0.04);
+  --bg-active:              rgba(59, 130, 246, 0.09);
+  --bg-input:               rgba(255, 255, 255, 0.04);
+  --bg-input-focus:         rgba(255, 255, 255, 0.07);
+  --bg-btn-secondary:       rgba(255, 255, 255, 0.06);
+  --bg-btn-secondary-hover: rgba(255, 255, 255, 0.10);
+  --bg-skeleton-start:      rgba(255, 255, 255, 0.03);
+  --bg-skeleton-mid:        rgba(255, 255, 255, 0.07);
+
+  --border:                 rgba(59, 130, 246, 0.12);
+  --border-strong:          rgba(59, 130, 246, 0.26);
+  --border-focus:           rgba(59, 130, 246, 0.65);
+
+  --text-heading:           #EFF6FF;
+  --text-body:              #94A3B8;
+  --text-muted:             #4B5563;
+  --text-subtle:            #374151;
+  --text-label:             #64748B;
+  --text-link:              #60A5FA;
+  --text-link-hover:        #93C5FD;
+
+  --shadow-card:            0 0 0 1px rgba(255,255,255,0.05), 0 24px 64px -12px rgba(0,0,0,0.80);
+  --shadow-btn:             0 0 22px rgba(59, 130, 246, 0.42);
+  --shadow-btn-hover:       0 0 36px rgba(59, 130, 246, 0.68);
+  --shadow-input-focus:     0 0 0 3px rgba(59, 130, 246, 0.22);
+
+  --scrollbar-thumb:        rgba(255, 255, 255, 0.08);
+  --notif-bg:               rgba(6, 14, 36, 0.97);
+  --gradient-bg:
+    radial-gradient(ellipse at 18% 48%, rgba(59, 130, 246, 0.14) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 18%, rgba(139, 92, 246, 0.11) 0%, transparent 52%),
+    radial-gradient(ellipse at 52% 88%, rgba(59, 130, 246, 0.09) 0%, transparent 60%),
+    #040C1A;
+}
+
+// ─── Charcoal (Dark Slate + Teal) — user-requested palette ───────────────────
+[data-theme="charcoal"] {
+  --navbar-height:          60px;
+  --accent:                 #00ADB5;
+  --accent-rgb:             0, 173, 181;
+  --accent-end:             #007B82;
+  --accent-end-rgb:         0, 123, 130;
+  --accent-hover:           #009EA6;
+  --gradient-btn:           linear-gradient(135deg, #00ADB5 0%, #006B72 100%);
+  --gradient-btn-hover:     linear-gradient(135deg, #009EA6 0%, #005A60 100%);
+
+  --bg-base:                #222831;
+  --bg-surface:             rgba(57, 62, 70, 0.90);
+  --bg-avatar:              rgba(34, 40, 49, 0.95);
+  --bg-dropdown:            rgba(24, 28, 34, 0.97);
+  --bg-overlay:             rgba(15, 18, 22, 0.72);
+  --bg-overlay-hard:        rgba(0, 0, 0, 0.78);
+  --bg-hover:               rgba(255, 255, 255, 0.04);
+  --bg-active:              rgba(0, 173, 181, 0.10);
+  --bg-input:               rgba(255, 255, 255, 0.04);
+  --bg-input-focus:         rgba(0, 173, 181, 0.08);
+  --bg-btn-secondary:       rgba(255, 255, 255, 0.06);
+  --bg-btn-secondary-hover: rgba(255, 255, 255, 0.10);
+  --bg-skeleton-start:      rgba(255, 255, 255, 0.03);
+  --bg-skeleton-mid:        rgba(255, 255, 255, 0.07);
+
+  --border:                 rgba(0, 173, 181, 0.15);
+  --border-strong:          rgba(0, 173, 181, 0.30);
+  --border-focus:           rgba(0, 173, 181, 0.65);
+
+  --text-heading:           #EEEEEE;
+  --text-body:              #A0ADB8;
+  --text-muted:             #5C6470;
+  --text-subtle:            #454D58;
+  --text-label:             #6E7A88;
+  --text-link:              #00CDD6;
+  --text-link-hover:        #5EE8EE;
+
+  --shadow-card:            0 0 0 1px rgba(0,173,181,0.08), 0 24px 64px -12px rgba(0,0,0,0.75);
+  --shadow-btn:             0 0 22px rgba(0, 173, 181, 0.45);
+  --shadow-btn-hover:       0 0 36px rgba(0, 173, 181, 0.70);
+  --shadow-input-focus:     0 0 0 3px rgba(0, 173, 181, 0.22);
+
+  --scrollbar-thumb:        rgba(255, 255, 255, 0.08);
+  --notif-bg:               rgba(24, 28, 34, 0.97);
+  --gradient-bg:
+    radial-gradient(ellipse at 18% 48%, rgba(0, 173, 181, 0.14) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 18%, rgba(0, 123, 130, 0.10) 0%, transparent 52%),
+    radial-gradient(ellipse at 52% 88%, rgba(0, 173, 181, 0.08) 0%, transparent 60%),
+    #222831;
+}
+
+// ─── Aurora (Deep Purple + Pink) ──────────────────────────────────────────────
+[data-theme="aurora"] {
+  --navbar-height:          60px;
+  --accent:                 #8B5CF6;
+  --accent-rgb:             139, 92, 246;
+  --accent-end:             #EC4899;
+  --accent-end-rgb:         236, 72, 153;
+  --accent-hover:           #7C3AED;
+  --gradient-btn:           linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+  --gradient-btn-hover:     linear-gradient(135deg, #7C3AED 0%, #DB2777 100%);
+
+  --bg-base:                #0D0621;
+  --bg-surface:             rgba(20, 8, 54, 0.90);
+  --bg-avatar:              rgba(18, 8, 46, 0.95);
+  --bg-dropdown:            rgba(10, 4, 28, 0.97);
+  --bg-overlay:             rgba(6, 2, 18, 0.72);
+  --bg-overlay-hard:        rgba(0, 0, 0, 0.80);
+  --bg-hover:               rgba(255, 255, 255, 0.04);
+  --bg-active:              rgba(139, 92, 246, 0.10);
+  --bg-input:               rgba(255, 255, 255, 0.04);
+  --bg-input-focus:         rgba(139, 92, 246, 0.08);
+  --bg-btn-secondary:       rgba(255, 255, 255, 0.06);
+  --bg-btn-secondary-hover: rgba(255, 255, 255, 0.10);
+  --bg-skeleton-start:      rgba(255, 255, 255, 0.03);
+  --bg-skeleton-mid:        rgba(255, 255, 255, 0.07);
+
+  --border:                 rgba(139, 92, 246, 0.15);
+  --border-strong:          rgba(139, 92, 246, 0.30);
+  --border-focus:           rgba(139, 92, 246, 0.65);
+
+  --text-heading:           #F5F0FF;
+  --text-body:              #9E92B8;
+  --text-muted:             #52466E;
+  --text-subtle:            #3D3258;
+  --text-label:             #6E6088;
+  --text-link:              #A78BFA;
+  --text-link-hover:        #C4B5FD;
+
+  --shadow-card:            0 0 0 1px rgba(139,92,246,0.08), 0 24px 64px -12px rgba(0,0,0,0.85);
+  --shadow-btn:             0 0 22px rgba(139, 92, 246, 0.45);
+  --shadow-btn-hover:       0 0 36px rgba(139, 92, 246, 0.70);
+  --shadow-input-focus:     0 0 0 3px rgba(139, 92, 246, 0.22);
+
+  --scrollbar-thumb:        rgba(255, 255, 255, 0.08);
+  --notif-bg:               rgba(10, 4, 28, 0.97);
+  --gradient-bg:
+    radial-gradient(ellipse at 18% 48%, rgba(139, 92, 246, 0.16) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 18%, rgba(236, 72, 153, 0.10) 0%, transparent 52%),
+    radial-gradient(ellipse at 52% 88%, rgba(139, 92, 246, 0.10) 0%, transparent 60%),
+    #0D0621;
+}
+
+// ─── Forest (Deep Green + Emerald) ────────────────────────────────────────────
+[data-theme="forest"] {
+  --navbar-height:          60px;
+  --accent:                 #10B981;
+  --accent-rgb:             16, 185, 129;
+  --accent-end:             #059669;
+  --accent-end-rgb:         5, 150, 105;
+  --accent-hover:           #0D9F6E;
+  --gradient-btn:           linear-gradient(135deg, #10B981 0%, #059669 100%);
+  --gradient-btn-hover:     linear-gradient(135deg, #0D9F6E 0%, #047857 100%);
+
+  --bg-base:                #061412;
+  --bg-surface:             rgba(8, 28, 22, 0.90);
+  --bg-avatar:              rgba(6, 20, 16, 0.95);
+  --bg-dropdown:            rgba(4, 14, 10, 0.97);
+  --bg-overlay:             rgba(2, 8, 6, 0.72);
+  --bg-overlay-hard:        rgba(0, 0, 0, 0.78);
+  --bg-hover:               rgba(255, 255, 255, 0.04);
+  --bg-active:              rgba(16, 185, 129, 0.10);
+  --bg-input:               rgba(255, 255, 255, 0.04);
+  --bg-input-focus:         rgba(16, 185, 129, 0.08);
+  --bg-btn-secondary:       rgba(255, 255, 255, 0.06);
+  --bg-btn-secondary-hover: rgba(255, 255, 255, 0.10);
+  --bg-skeleton-start:      rgba(255, 255, 255, 0.03);
+  --bg-skeleton-mid:        rgba(255, 255, 255, 0.07);
+
+  --border:                 rgba(16, 185, 129, 0.15);
+  --border-strong:          rgba(16, 185, 129, 0.28);
+  --border-focus:           rgba(16, 185, 129, 0.65);
+
+  --text-heading:           #ECFDF5;
+  --text-body:              #94B8A8;
+  --text-muted:             #4B6B5E;
+  --text-subtle:            #365248;
+  --text-label:             #607A6E;
+  --text-link:              #34D399;
+  --text-link-hover:        #6EE7B7;
+
+  --shadow-card:            0 0 0 1px rgba(16,185,129,0.08), 0 24px 64px -12px rgba(0,0,0,0.82);
+  --shadow-btn:             0 0 22px rgba(16, 185, 129, 0.42);
+  --shadow-btn-hover:       0 0 36px rgba(16, 185, 129, 0.68);
+  --shadow-input-focus:     0 0 0 3px rgba(16, 185, 129, 0.22);
+
+  --scrollbar-thumb:        rgba(255, 255, 255, 0.08);
+  --notif-bg:               rgba(4, 14, 10, 0.97);
+  --gradient-bg:
+    radial-gradient(ellipse at 18% 48%, rgba(16, 185, 129, 0.14) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 18%, rgba(5, 150, 105, 0.10) 0%, transparent 52%),
+    radial-gradient(ellipse at 52% 88%, rgba(16, 185, 129, 0.08) 0%, transparent 60%),
+    #061412;
+}
+
+// ─── Ivory (Light + Blue/Violet) ──────────────────────────────────────────────
+[data-theme="ivory"] {
+  --navbar-height:          60px;
+  --accent:                 #2563EB;
+  --accent-rgb:             37, 99, 235;
+  --accent-end:             #7C3AED;
+  --accent-end-rgb:         124, 58, 237;
+  --accent-hover:           #1D4ED8;
+  --gradient-btn:           linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+  --gradient-btn-hover:     linear-gradient(135deg, #1D4ED8 0%, #6D28D9 100%);
+
+  --bg-base:                #F8FAFF;
+  --bg-surface:             rgba(255, 255, 255, 0.96);
+  --bg-avatar:              rgba(238, 242, 255, 0.98);
+  --bg-dropdown:            rgba(255, 255, 255, 0.98);
+  --bg-overlay:             rgba(15, 23, 42, 0.56);
+  --bg-overlay-hard:        rgba(15, 23, 42, 0.80);
+  --bg-hover:               rgba(37, 99, 235, 0.05);
+  --bg-active:              rgba(37, 99, 235, 0.09);
+  --bg-input:               rgba(37, 99, 235, 0.04);
+  --bg-input-focus:         rgba(37, 99, 235, 0.07);
+  --bg-btn-secondary:       rgba(37, 99, 235, 0.06);
+  --bg-btn-secondary-hover: rgba(37, 99, 235, 0.11);
+  --bg-skeleton-start:      rgba(0, 0, 0, 0.04);
+  --bg-skeleton-mid:        rgba(0, 0, 0, 0.08);
+
+  --border:                 rgba(37, 99, 235, 0.15);
+  --border-strong:          rgba(37, 99, 235, 0.30);
+  --border-focus:           rgba(37, 99, 235, 0.55);
+
+  --text-heading:           #0F172A;
+  --text-body:              #374151;
+  --text-muted:             #6B7280;
+  --text-subtle:            #9CA3AF;
+  --text-label:             #6B7280;
+  --text-link:              #2563EB;
+  --text-link-hover:        #1D4ED8;
+
+  --shadow-card:            0 1px 3px rgba(0,0,0,0.06), 0 10px 36px rgba(37,99,235,0.10);
+  --shadow-btn:             0 0 18px rgba(37, 99, 235, 0.32);
+  --shadow-btn-hover:       0 0 28px rgba(37, 99, 235, 0.52);
+  --shadow-input-focus:     0 0 0 3px rgba(37, 99, 235, 0.16);
+
+  --scrollbar-thumb:        rgba(0, 0, 0, 0.13);
+  --notif-bg:               rgba(255, 255, 255, 0.98);
+  --gradient-bg:
+    radial-gradient(ellipse at 18% 48%, rgba(37, 99, 235, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 18%, rgba(124, 58, 237, 0.05) 0%, transparent 52%),
+    radial-gradient(ellipse at 52% 88%, rgba(37, 99, 235, 0.04) 0%, transparent 60%),
+    #F8FAFF;
 }
 
 // ─── App Shell ────────────────────────────────────────────────────────────────
@@ -11,6 +272,7 @@
   background: v.$gradient-bg;
   display: flex;
   flex-direction: column;
+  transition: background 0.35s ease;
 
   &__main {
     flex: 1;
@@ -18,7 +280,7 @@
   }
 }
 
-// ─── Full-page Loader (ProtectedRoute) ────────────────────────────────────────
+// ─── Full-page Loader ─────────────────────────────────────────────────────────
 .full-loader {
   @include m.flex-center;
   height: 100vh;

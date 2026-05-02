@@ -27,33 +27,30 @@
   font-size: v.$font-size-sm;
   font-weight: 500;
   border: 1px solid transparent;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.30);
   animation: toastIn 0.3s ease;
 
   &--success {
-    background: rgba(52, 211, 153, 0.12);
-    border-color: rgba(52, 211, 153, 0.25);
+    background: rgba(52, 211, 153, 0.14);
+    border-color: rgba(52, 211, 153, 0.28);
     color: v.$color-success-text;
   }
-
   &--error {
     background: v.$color-error-bg;
     border-color: v.$color-error-border;
     color: v.$color-error;
   }
-
   &--info {
-    background: rgba(99, 102, 241, 0.1);
-    border-color: rgba(99, 102, 241, 0.25);
-    color: #a5b4fc;
+    background: rgba(var(--accent-rgb), 0.12);
+    border-color: rgba(var(--accent-rgb), 0.28);
+    color: #60A5FA;
   }
-
   &--warning {
-    background: rgba(251, 191, 36, 0.1);
+    background: rgba(251, 191, 36, 0.10);
     border-color: rgba(251, 191, 36, 0.25);
-    color: #fde68a;
+    color: #FDE68A;
   }
 
   &__icon {

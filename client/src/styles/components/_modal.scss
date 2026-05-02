@@ -5,7 +5,7 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(6, 8, 24, 0.75);
+  background: var(--bg-overlay);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   @include m.flex-center;
@@ -14,10 +14,10 @@
 }
 
 .modal {
-  background: rgba(10, 14, 32, 0.98);
+  background: var(--bg-dropdown);
   border: 1px solid v.$color-border;
   border-radius: v.$radius-xl;
-  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
   width: 100%;
   max-width: 480px;
   animation: modalIn 0.25s ease;
@@ -44,9 +44,7 @@
     &:hover { color: v.$color-text-heading; }
   }
 
-  &__body {
-    padding: v.$spacing-2xl;
-  }
+  &__body   { padding: v.$spacing-2xl; }
 
   &__footer {
     display: flex;

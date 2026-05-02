@@ -1,42 +1,41 @@
-// ─── Color Palette ────────────────────────────────────────────────────────────
-$color-bg-deep:        #060818;
-$color-bg-surface:     rgba(15, 20, 40, 0.85);
-$color-bg-input:       rgba(255, 255, 255, 0.04);
-$color-bg-input-focus: rgba(255, 255, 255, 0.07);
-$color-border:         rgba(255, 255, 255, 0.08);
-$color-border-focus:   rgba(139, 92, 246, 0.7);
+// ─── Static brand colors (hex literals — used in SCSS color functions like rgba()) ─
+$color-primary:          #3B82F6;
+$color-primary-end:      #8B5CF6;
+$color-primary-hover:    #2563EB;
 
-// Gradient brand
-$color-primary:        #8b5cf6;
-$color-primary-end:    #6366f1;
-$color-primary-hover:  #7c3aed;
-$color-primary-ring:   rgba(139, 92, 246, 0.25);
-$gradient-primary:     linear-gradient(135deg, #8b5cf6, #6366f1);
-$gradient-primary-hover: linear-gradient(135deg, #7c3aed, #4f46e5);
+// ─── Theme-aware accent vars (resolve to per-theme values at runtime) ─────────
+$color-primary-ring:     var(--border-focus);
+$gradient-primary:       var(--gradient-btn);
+$gradient-primary-hover: var(--gradient-btn-hover);
 
-// Text
-$color-text-heading:   #f8fafc;
-$color-text-body:      #cbd5e1;
-$color-text-muted:     #64748b;
-$color-text-subtle:    #374151;
-$color-text-label:     #94a3b8;
-$color-text-link:      #a78bfa;
-$color-text-link-hover:#c4b5fd;
-
-// Feedback
-$color-error:          #f87171;
+// Feedback (static)
+$color-error:          #F87171;
 $color-error-bg:       rgba(248, 113, 113, 0.08);
 $color-error-border:   rgba(248, 113, 113, 0.25);
-$color-success:        #34d399;
+$color-success:        #34D399;
 $color-success-bg:     rgba(52, 211, 153, 0.08);
 $color-success-border: rgba(52, 211, 153, 0.25);
-$color-success-text:   #6ee7b7;
+$color-success-text:   #6EE7B7;
 
-// Backgrounds
-$gradient-bg:          radial-gradient(ellipse at 20% 50%, rgba(120, 40, 200, 0.15) 0%, transparent 60%),
-                       radial-gradient(ellipse at 80% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
-                       radial-gradient(ellipse at 50% 90%, rgba(139, 92, 246, 0.1) 0%, transparent 60%),
-                       #060818;
+// ─── Theme-aware aliases → CSS custom properties ──────────────────────────────
+$color-bg-deep:         var(--bg-base);
+$color-bg-surface:      var(--bg-surface);
+$color-bg-input:        var(--bg-input);
+$color-bg-input-focus:  var(--bg-input-focus);
+$color-border:          var(--border);
+$color-border-focus:    var(--border-focus);
+$color-text-heading:    var(--text-heading);
+$color-text-body:       var(--text-body);
+$color-text-muted:      var(--text-muted);
+$color-text-subtle:     var(--text-subtle);
+$color-text-label:      var(--text-label);
+$color-text-link:       var(--text-link);
+$color-text-link-hover: var(--text-link-hover);
+$shadow-card:           var(--shadow-card);
+$shadow-btn:            var(--shadow-btn);
+$shadow-btn-hover:      var(--shadow-btn-hover);
+$shadow-input-focus:    var(--shadow-input-focus);
+$gradient-bg:           var(--gradient-bg);
 
 // ─── Typography ───────────────────────────────────────────────────────────────
 $font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
@@ -56,17 +55,11 @@ $spacing-2xl: 2rem;
 $spacing-3xl: 2.5rem;
 
 // ─── Border Radius ────────────────────────────────────────────────────────────
-$radius-sm:  6px;
-$radius-md:  10px;
-$radius-lg:  14px;
-$radius-xl:  20px;
+$radius-sm:   6px;
+$radius-md:   10px;
+$radius-lg:   14px;
+$radius-xl:   20px;
 $radius-full: 9999px;
-
-// ─── Shadows / Glow ───────────────────────────────────────────────────────────
-$shadow-card:       0 0 0 1px rgba(255,255,255,0.06), 0 32px 64px -16px rgba(0,0,0,0.7);
-$shadow-btn:        0 0 24px rgba(139, 92, 246, 0.35);
-$shadow-btn-hover:  0 0 36px rgba(139, 92, 246, 0.55);
-$shadow-input-focus:0 0 0 3px rgba(139, 92, 246, 0.2);
 
 // ─── Transitions ──────────────────────────────────────────────────────────────
 $transition-fast: 0.15s ease;

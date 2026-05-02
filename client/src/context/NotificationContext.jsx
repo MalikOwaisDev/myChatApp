@@ -39,12 +39,16 @@ export const NotificationProvider = ({ children }) => {
       const senderId = String(message.senderId);
       if (myIdRef.current && senderId === myIdRef.current) return;
 
+      // Don't add a bell entry if the user is already viewing this conversation
+      const convId = String(message.conversationId);
+      if (window.location.pathname === `/chat/${convId}`) return;
+
       const isMedia = message.messageType === 'media';
       const entry = {
         id: `msg_${message._id}`,
         type: 'message',
         message: `${message.senderName || 'Someone'} ${isMedia ? 'sent you a photo' : 'sent you a message'}`,
-        conversationId: String(message.conversationId),
+        conversationId: convId,
         timestamp: message.createdAt,
       };
       pushNotification(setNotifications, setUnreadCount, entry);
@@ -68,8 +72,18 @@ export const NotificationProvider = ({ children }) => {
   const markAllRead = useCallback(() => setUnreadCount(0), []);
   const clearAll = useCallback(() => { setNotifications([]); setUnreadCount(0); }, []);
 
+  const markConversationRead = useCallback((conversationId) => {
+    const convId = String(conversationId);
+    setNotifications((prev) => {
+      const filtered = prev.filter((n) => String(n.conversationId) !== convId);
+      const delta = prev.length - filtered.length;
+      if (delta > 0) setUnreadCount((c) => Math.max(0, c - delta));
+      return filtered;
+    });
+  }, []);
+
   return (
-    <NotificationContext.Provider value={{ notifications, unreadCount, markAllRead, clearAll }}>
+    <NotificationContext.Provider value={{ notifications, unreadCount, markAllRead, clearAll, markConversationRead }}>
       {children}
     </NotificationContext.Provider>
   );
@@ -80,3 +94,5 @@ export const useNotifications = () => {
   if (!ctx) throw new Error('useNotifications must be used within NotificationProvider');
   return ctx;
 };
+
+export const useMarkConversationRead = () => useNotifications().markConversationRead;

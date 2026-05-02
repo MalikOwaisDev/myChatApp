@@ -1,4 +1,5 @@
 const http = require('http');
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -16,6 +17,7 @@ const mediaMessageRoutes = require('./routes/mediaMessage.routes');
 const settingsRoutes = require('./routes/settings.routes');
 const conversationManagementRoutes = require('./routes/conversationManagement.routes');
 const blockRoutes = require('./routes/block.routes');
+const chatRequestRoutes = require('./routes/chatRequest.routes');
 const initSocket = require('./sockets');
 const { errorHandler } = require('./middleware/error.middleware');
 
@@ -29,7 +31,12 @@ initSocket(httpServer, CLIENT_URL);
 // ─── Security ─────────────────────────────────────────────────────────────────
 app.disable('x-powered-by');
 app.use(setSecurityHeaders);
-app.use(cors({ origin: CLIENT_URL, credentials: true }));
+// In production the front-end is served from the same origin — no CORS needed.
+// In development the Vite dev server runs on a separate port, so we allow it.
+app.use(cors({
+  origin: NODE_ENV === 'production' ? false : CLIENT_URL,
+  credentials: true,
+}));
 app.use(express.json({ limit: '5mb' }));
 app.use(globalLimiter);
 
@@ -40,11 +47,22 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/users', userSearchRoutes);
 app.use('/api/users', blockRoutes);
+app.use('/api/chat-requests', chatRequestRoutes);
 app.use('/api/conversations', conversationManagementRoutes);
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/messages', messageStatusRoutes);
 app.use('/api/messages/media', mediaMessageRoutes);
 app.use('/api/messages', messageRoutes);
+
+// ─── Static build (production only) ──────────────────────────────────────────
+if (NODE_ENV === 'production') {
+  const publicDir = path.join(__dirname, 'public');
+  app.use(express.static(publicDir));
+  // SPA catch-all: let React Router handle every non-API path
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(publicDir, 'index.html'));
+  });
+}
 
 app.use(errorHandler);
 

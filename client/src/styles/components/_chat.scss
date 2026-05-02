@@ -31,6 +31,9 @@
   }
 
   &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: v.$spacing-lg v.$spacing-xl;
     border-bottom: 1px solid v.$color-border;
     flex-shrink: 0;
@@ -43,6 +46,20 @@
     letter-spacing: -0.02em;
   }
 
+  &__req-badge {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: v.$radius-full;
+    background: #F59E0B;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    @include m.flex-center;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
   &__body {
     flex: 1;
     overflow-y: auto;
@@ -50,7 +67,7 @@
 
     &::-webkit-scrollbar { width: 4px; }
     &::-webkit-scrollbar-track { background: transparent; }
-    &::-webkit-scrollbar-thumb { background: v.$color-border; border-radius: 2px; }
+    &::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
   }
 
   &__empty {
@@ -60,11 +77,7 @@
     padding: v.$spacing-3xl v.$spacing-xl;
     text-align: center;
 
-    p {
-      font-size: v.$font-size-sm;
-      color: v.$color-text-muted;
-      line-height: 1.5;
-    }
+    p { font-size: v.$font-size-sm; color: v.$color-text-muted; line-height: 1.5; }
   }
 
   &__loading {
@@ -78,9 +91,9 @@
     border-radius: v.$radius-md;
     background: linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0.03) 0%,
-      rgba(255, 255, 255, 0.06) 50%,
-      rgba(255, 255, 255, 0.03) 100%
+      var(--bg-skeleton-start) 0%,
+      var(--bg-skeleton-mid)   50%,
+      var(--bg-skeleton-start) 100%
     );
     background-size: 200% 100%;
     animation: shimmer 1.4s ease infinite;
@@ -118,19 +131,13 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: #34d399;
-    border: 2px solid v.$color-bg-deep;
+    background: #34D399;
+    border: 2px solid var(--bg-base);
     box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.3);
   }
 
-  &:hover {
-    background: rgba(139, 92, 246, 0.04);
-  }
-
-  &--active {
-    background: rgba(139, 92, 246, 0.08);
-    border-left-color: v.$color-primary;
-  }
+  &:hover    { background: var(--bg-hover); }
+  &--active  { background: var(--bg-active); border-left-color: v.$color-primary; }
 
   &__body {
     @include m.flex-col;
@@ -188,10 +195,7 @@
     @include m.truncate;
     line-height: 1.4;
 
-    &--unread {
-      color: v.$color-text-body;
-      font-weight: 500;
-    }
+    &--unread { color: v.$color-text-body; font-weight: 500; }
   }
 }
 
@@ -215,7 +219,7 @@
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background: rgba(15, 20, 40, 0.9);
+    background: var(--bg-avatar);
     @include m.flex-center;
     font-size: 0.8rem;
     font-weight: 700;
@@ -240,9 +244,7 @@
     transition: transform v.$transition-base;
     background: v.$color-bg-deep;
 
-    &--active {
-      transform: translateX(0);
-    }
+    &--active { transform: translateX(0); }
   }
 
   &__empty {
@@ -258,15 +260,10 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: rgba(139, 92, 246, 0.08);
-    border: 1px solid rgba(139, 92, 246, 0.15);
+    background: rgba(var(--accent-rgb), 0.08);
+    border: 1px solid rgba(var(--accent-rgb), 0.18);
     @include m.flex-center;
-
-    svg {
-      width: 28px;
-      height: 28px;
-      stroke: v.$color-primary;
-    }
+    svg { width: 28px; height: 28px; stroke: v.$color-text-link; }
   }
 
   &__empty-title {
@@ -304,13 +301,7 @@
     transition: color v.$transition-fast;
     flex-shrink: 0;
 
-    svg {
-      width: 20px;
-      height: 20px;
-      stroke: currentColor;
-      display: block;
-    }
-
+    svg { width: 20px; height: 20px; stroke: currentColor; display: block; }
     &:hover { color: v.$color-text-heading; }
 
     @include m.respond-to(md) { display: flex; }
@@ -337,7 +328,7 @@
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background: rgba(15, 20, 40, 0.9);
+    background: var(--bg-avatar);
     @include m.flex-center;
     font-size: 0.875rem;
     font-weight: 700;
@@ -368,6 +359,18 @@
     font-size: v.$font-size-xs;
     color: v.$color-text-muted;
   }
+
+  &__muted-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: v.$color-text-muted;
+    background: var(--bg-hover);
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-full;
+    padding: 1px 6px;
+  }
 }
 
 // ─── Message List ─────────────────────────────────────────────────────────────
@@ -380,38 +383,32 @@
 
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb { background: v.$color-border; border-radius: 2px; }
+  &::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
 
-  &--loading {
-    justify-content: flex-end;
-  }
+  &--loading { justify-content: flex-end; }
 
   &__empty {
     flex: 1;
     @include m.flex-center;
-
-    p {
-      font-size: v.$font-size-sm;
-      color: v.$color-text-muted;
-    }
+    p { font-size: v.$font-size-sm; color: v.$color-text-muted; }
   }
 
   &__load-more {
     align-self: center;
     margin-bottom: v.$spacing-md;
     padding: v.$spacing-xs v.$spacing-lg;
-    background: rgba(139, 92, 246, 0.08);
-    border: 1px solid rgba(139, 92, 246, 0.2);
+    background: rgba(var(--accent-rgb), 0.08);
+    border: 1px solid rgba(var(--accent-rgb), 0.22);
     border-radius: v.$radius-full;
-    color: v.$color-primary;
+    color: v.$color-text-link;
     font-size: v.$font-size-xs;
     font-weight: 600;
     cursor: pointer;
     transition: background v.$transition-fast, border-color v.$transition-fast;
 
     &:hover:not(:disabled) {
-      background: rgba(139, 92, 246, 0.15);
-      border-color: rgba(139, 92, 246, 0.35);
+      background: rgba(var(--accent-rgb), 0.14);
+      border-color: rgba(var(--accent-rgb), 0.38);
     }
 
     &:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -423,16 +420,14 @@
     border-radius: v.$radius-lg;
     background: linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0.03) 0%,
-      rgba(255, 255, 255, 0.06) 50%,
-      rgba(255, 255, 255, 0.03) 100%
+      var(--bg-skeleton-start) 0%,
+      var(--bg-skeleton-mid)   50%,
+      var(--bg-skeleton-start) 100%
     );
     background-size: 200% 100%;
     animation: shimmer 1.4s ease infinite;
 
-    &--mine {
-      align-self: flex-end;
-    }
+    &--mine { align-self: flex-end; }
   }
 }
 
@@ -442,9 +437,7 @@
   justify-content: flex-start;
   animation: bubbleIn 0.15s ease both;
 
-  &--mine {
-    justify-content: flex-end;
-  }
+  &--mine { justify-content: flex-end; }
 }
 
 @keyframes bubbleIn {
@@ -459,7 +452,7 @@
   position: relative;
 
   &--theirs {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--bg-btn-secondary);
     border: 1px solid v.$color-border;
     border-bottom-left-radius: v.$radius-sm;
   }
@@ -478,9 +471,7 @@
     margin-bottom: v.$spacing-xs;
   }
 
-  &--mine &__text {
-    color: #fff;
-  }
+  &--mine &__text { color: #fff; }
 
   &__footer {
     display: flex;
@@ -495,9 +486,7 @@
     line-height: 1;
   }
 
-  &--theirs &__time {
-    color: v.$color-text-muted;
-  }
+  &--theirs &__time { color: v.$color-text-muted; }
 
   &__status {
     display: flex;
@@ -505,27 +494,10 @@
     color: rgba(255, 255, 255, 0.45);
     flex-shrink: 0;
 
-    svg {
-      display: block;
-    }
+    svg { display: block; }
 
-    &--seen {
-      color: #a5b4fc;
-    }
+    &--seen { color: #93C5FD; }
   }
-}
-
-// ─── Chat Header — muted badge ───────────────────────────────────────────────
-.chat-header__muted-badge {
-  font-size: 0.6rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: v.$color-text-muted;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid v.$color-border;
-  border-radius: v.$radius-full;
-  padding: 1px 6px;
 }
 
 // ─── Chat Menu (3-dot) ────────────────────────────────────────────────────────
@@ -544,7 +516,7 @@
     cursor: pointer;
     transition: background v.$transition-fast, color v.$transition-fast;
 
-    &:hover { background: rgba(255, 255, 255, 0.06); color: v.$color-text-heading; }
+    &:hover { background: var(--bg-hover); color: v.$color-text-heading; }
   }
 
   &__dropdown {
@@ -557,7 +529,7 @@
     border-radius: v.$radius-md;
     padding: v.$spacing-xs 0;
     z-index: 100;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
     animation: dropdownIn 0.1s ease both;
   }
 
@@ -578,12 +550,8 @@
     cursor: pointer;
     transition: background v.$transition-fast;
 
-    &:hover { background: rgba(255, 255, 255, 0.05); }
-
-    &--danger {
-      color: #f87171;
-      &:hover { background: rgba(239, 68, 68, 0.08); }
-    }
+    &:hover { background: var(--bg-hover); }
+    &--danger { color: v.$color-error; &:hover { background: rgba(239, 68, 68, 0.08); } }
   }
 }
 
@@ -591,7 +559,7 @@
 .confirm-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--bg-overlay-hard);
   backdrop-filter: blur(2px);
   z-index: 200;
   @include m.flex-center;
@@ -604,7 +572,7 @@
   padding: v.$spacing-2xl;
   max-width: 380px;
   width: calc(100% - v.$spacing-3xl);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.40);
 
   &__title {
     font-size: v.$font-size-lg;
@@ -638,10 +606,10 @@
     &:disabled { opacity: 0.5; cursor: not-allowed; }
 
     &--cancel {
-      background: rgba(255, 255, 255, 0.06);
+      background: var(--bg-btn-secondary);
       border-color: v.$color-border;
       color: v.$color-text-body;
-      &:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); }
+      &:hover:not(:disabled) { background: var(--bg-btn-secondary-hover); }
     }
 
     &--confirm {
@@ -652,14 +620,14 @@
 
     &--danger {
       background: rgba(239, 68, 68, 0.12);
-      border-color: rgba(239, 68, 68, 0.3);
-      color: #f87171;
-      &:hover:not(:disabled) { background: rgba(239, 68, 68, 0.2); }
+      border-color: rgba(239, 68, 68, 0.30);
+      color: v.$color-error;
+      &:hover:not(:disabled) { background: rgba(239, 68, 68, 0.20); }
     }
   }
 }
 
-// ─── Media Preview (above input) ─────────────────────────────────────────────
+// ─── Media Preview ────────────────────────────────────────────────────────────
 .media-preview {
   position: relative;
   display: inline-flex;
@@ -728,7 +696,7 @@
     }
 
     &::-webkit-scrollbar { width: 3px; }
-    &::-webkit-scrollbar-thumb { background: v.$color-border; border-radius: 2px; }
+    &::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
   }
 
   &__send {
@@ -736,19 +704,14 @@
     height: 40px;
     border-radius: 50%;
     border: none;
-    background: rgba(139, 92, 246, 0.12);
+    background: rgba(var(--accent-rgb), 0.12);
     color: v.$color-text-muted;
     @include m.flex-center;
     cursor: pointer;
     flex-shrink: 0;
     transition: background v.$transition-fast, color v.$transition-fast, transform v.$transition-fast;
 
-    svg {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-      display: block;
-    }
+    svg { width: 18px; height: 18px; stroke: currentColor; display: block; }
 
     &--active {
       background: v.$gradient-primary;
@@ -756,44 +719,32 @@
       box-shadow: v.$shadow-btn;
     }
 
-    &--active:hover {
-      box-shadow: v.$shadow-btn-hover;
-      transform: scale(1.05);
-    }
-
+    &--active:hover { box-shadow: v.$shadow-btn-hover; transform: scale(1.05); }
     &:disabled { cursor: not-allowed; }
   }
 }
 
-// ─── Media Upload Button ─────────────────────────────────────────────────────
+// ─── Media Upload Button ──────────────────────────────────────────────────────
 .msg-input__media-btn {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   border: none;
-  background: rgba(139, 92, 246, 0.08);
+  background: rgba(var(--accent-rgb), 0.08);
   color: v.$color-text-muted;
   @include m.flex-center;
   cursor: pointer;
   flex-shrink: 0;
   transition: background v.$transition-fast, color v.$transition-fast;
 
-  svg {
-    width: 18px;
-    height: 18px;
-    stroke: currentColor;
-    display: block;
-  }
+  svg { width: 18px; height: 18px; stroke: currentColor; display: block; }
 
   &:hover:not(:disabled) {
-    background: rgba(139, 92, 246, 0.15);
-    color: v.$color-primary;
+    background: rgba(var(--accent-rgb), 0.15);
+    color: v.$color-text-link;
   }
 
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 
 // ─── Upload Loader ────────────────────────────────────────────────────────────
@@ -801,7 +752,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(139, 92, 246, 0.12);
+  background: rgba(var(--accent-rgb), 0.12);
   @include m.flex-center;
   gap: 3px;
   flex-shrink: 0;
@@ -818,10 +769,8 @@
   }
 }
 
-// ─── Media Message Image ──────────────────────────────────────────────────────
-.msg-bubble--media {
-  padding-bottom: v.$spacing-xs;
-}
+// ─── Media Message ────────────────────────────────────────────────────────────
+.msg-bubble--media { padding-bottom: v.$spacing-xs; }
 
 .msg-media__img {
   max-width: 100%;
@@ -833,20 +782,18 @@
   margin-bottom: v.$spacing-xs;
 }
 
-// ─── Online Status Dot ────────────────────────────────────────────────────────
+// ─── Online Status ────────────────────────────────────────────────────────────
 .online-status {
   border-radius: 50%;
   flex-shrink: 0;
   display: inline-block;
 
   &--online {
-    background: #34d399;
-    box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.2);
+    background: #34D399;
+    box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.20);
   }
 
-  &--offline {
-    background: rgba(255, 255, 255, 0.15);
-  }
+  &--offline { background: var(--scrollbar-thumb); }
 }
 
 // ─── Typing Indicator ─────────────────────────────────────────────────────────
@@ -894,7 +841,7 @@
   flex-shrink: 0;
 }
 
-// ─── Message Pagination Loader (skeleton rows for older messages) ─────────────
+// ─── Message Pagination Loader ────────────────────────────────────────────────
 .msg-pagination-loader {
   @include m.flex-col;
   gap: v.$spacing-sm;
@@ -903,18 +850,71 @@
   &__item {
     height: 36px;
     border-radius: v.$radius-lg;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-skeleton-start);
     width: 55%;
     animation: skeletonPulse 1.4s ease infinite;
 
-    &--right {
-      align-self: flex-end;
-      width: 45%;
-    }
+    &--right { align-self: flex-end; width: 45%; }
   }
 }
 
 @keyframes skeletonPulse {
   0%, 100% { opacity: 0.4; }
   50% { opacity: 0.8; }
+}
+
+// ─── Chat Request Banner ──────────────────────────────────────────────────────
+.chat-request-banner {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-md;
+  padding: v.$spacing-md v.$spacing-xl;
+  background: rgba(245, 158, 11, 0.08);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+  flex-shrink: 0;
+  animation: bubbleIn 0.2s ease both;
+
+  &__icon { font-size: 1.2rem; flex-shrink: 0; opacity: 0.8; }
+
+  &__body {
+    @include m.flex-col;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title { font-size: v.$font-size-sm; font-weight: 600; color: v.$color-text-heading; }
+  &__sub   { font-size: v.$font-size-xs; color: v.$color-text-muted; line-height: 1.4; }
+
+  &__actions {
+    display: flex;
+    gap: v.$spacing-sm;
+    flex-shrink: 0;
+  }
+
+  &__btn {
+    padding: v.$spacing-xs v.$spacing-md;
+    border-radius: v.$radius-sm;
+    font-size: v.$font-size-xs;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background v.$transition-fast, opacity v.$transition-fast;
+
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    &--accept {
+      background: rgba(52, 211, 153, 0.12);
+      border-color: rgba(52, 211, 153, 0.30);
+      color: v.$color-success;
+      &:hover:not(:disabled) { background: rgba(52, 211, 153, 0.20); }
+    }
+
+    &--reject {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.20);
+      color: v.$color-error;
+      &:hover:not(:disabled) { background: rgba(239, 68, 68, 0.14); }
+    }
+  }
 }

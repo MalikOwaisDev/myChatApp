@@ -9,8 +9,10 @@ const mediaHandler = require('./handlers/media.handler');
 const { init } = require('../utils/socketEmitter');
 
 const initSocket = (httpServer, clientUrl) => {
+  const isProd = process.env.NODE_ENV === 'production';
   const io = new Server(httpServer, {
-    cors: { origin: clientUrl, credentials: true },
+    // In production the client is served from the same origin — disable CORS.
+    cors: isProd ? false : { origin: clientUrl, credentials: true },
   });
 
   init(io);

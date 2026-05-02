@@ -40,7 +40,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     getDashboardApi()
-      .then(({ data }) => setStats(data.stats))
+      .then(({ data }) => {
+        if (data.stats) setStats(data.stats);
+      })
       .catch(() => {});
   }, []);
 
@@ -53,12 +55,14 @@ const Dashboard = () => {
       <div className="dashboard-orb dashboard-orb--2" aria-hidden="true" />
       <div className="dashboard-container">
         <DashboardHeader user={user} />
+
         <SectionWrapper>
           <div className="dashboard-grid">
             <UserCard user={user} />
             <QuickActions />
           </div>
         </SectionWrapper>
+
         <SectionWrapper title="Overview">
           <div className="stats-row">
             <StatsCard
@@ -74,9 +78,8 @@ const Dashboard = () => {
             />
             <StatsCard
               icon={<MessageIcon />}
-              label="Messages"
-              value="0"
-              note="Coming soon"
+              label="Messages Sent"
+              value={stats ? String(stats.messages) : '—'}
             />
           </div>
         </SectionWrapper>

@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Conversation = require('../../models/conversation.model');
 const User = require('../../models/user.model');
 const messageService = require('../../services/message.service');
+const chatRequestService = require('../../services/chatRequest.service');
 const { emitToUser } = require('../../utils/socketEmitter');
 
 const createSocketRateLimit = (max = 30, windowMs = 60_000) => {
@@ -67,7 +68,7 @@ const messageHandler = (io, socket) => {
       const otherId = String(conversation.participants.find((p) => String(p) !== socket.userId));
 
       const [senderData, otherData] = await Promise.all([
-        User.findById(socket.userId, 'name blockedUsers').lean(),
+        User.findById(socket.userId, 'name username profileImage blockedUsers').lean(),
         User.findById(otherId, 'blockedUsers').lean(),
       ]);
 
@@ -78,6 +79,32 @@ const messageHandler = (io, socket) => {
       if (isBlocked) {
         socket.emit('message_error', { error: 'Cannot message this user' });
         return;
+      }
+
+      const requestCheck = await chatRequestService.checkAndEnforce(
+        conversationId,
+        socket.userId,
+        otherId
+      );
+      if (!requestCheck.allowed) {
+        socket.emit('message_error', { error: requestCheck.error });
+        return;
+      }
+
+      // Notify recipient in real-time when a brand-new chat request is created
+      if (requestCheck.newRequest) {
+        emitToUser(otherId, 'new_chat_request', {
+          _id: requestCheck.newRequest._id,
+          from: {
+            _id: socket.userId,
+            name: senderData?.name || 'Someone',
+            username: senderData?.username || '',
+            profileImage: senderData?.profileImage || null,
+          },
+          conversationId: { _id: String(conversationId) },
+          status: 'pending',
+          createdAt: requestCheck.newRequest.createdAt,
+        });
       }
 
       const message = await messageService.createMessage(conversationId, socket.userId, sanitized);

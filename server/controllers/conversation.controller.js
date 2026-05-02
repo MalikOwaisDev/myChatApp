@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const asyncHandler = require('../utils/asyncHandler');
 const Conversation = require('../models/conversation.model');
+const Message = require('../models/message.model');
 const User = require('../models/user.model');
 
 const LAST_MSG_SELECT = 'text messageType senderId createdAt';
@@ -57,9 +58,34 @@ const getUserConversations = asyncHandler(async (req, res) => {
   })
     .sort({ updatedAt: -1 })
     .populate('participants', PARTICIPANT_SELECT)
-    .populate({ path: 'lastMessage', select: LAST_MSG_SELECT });
+    .populate({ path: 'lastMessage', select: LAST_MSG_SELECT })
+    .lean();
 
-  res.json(conversations);
+  if (!conversations.length) return res.json([]);
+
+  // Compute per-conversation unread counts in a single aggregation
+  const convIds = conversations.map((c) => c._id);
+  const unreadAgg = await Message.aggregate([
+    {
+      $match: {
+        conversationId: { $in: convIds },
+        senderId: { $ne: new mongoose.Types.ObjectId(req.user.id) },
+        status: { $ne: 'seen' },
+        deletedFor: { $nin: [new mongoose.Types.ObjectId(req.user.id)] },
+      },
+    },
+    { $group: { _id: '$conversationId', count: { $sum: 1 } } },
+  ]);
+
+  const unreadMap = {};
+  for (const row of unreadAgg) unreadMap[String(row._id)] = row.count;
+
+  const result = conversations.map((c) => ({
+    ...c,
+    unreadCount: unreadMap[String(c._id)] || 0,
+  }));
+
+  res.json(result);
 });
 
 const getConversationById = asyncHandler(async (req, res) => {

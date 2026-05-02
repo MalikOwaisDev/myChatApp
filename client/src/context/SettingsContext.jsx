@@ -11,12 +11,14 @@ export const SettingsProvider = ({ children }) => {
   const { token } = useAuth();
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [blockedUsers, setBlockedUsers] = useState([]);
+  const [isPublic, setIsPublic] = useState(true);
   const [loadingSettings, setLoadingSettings] = useState(false);
 
   useEffect(() => {
     if (!token) {
       setSettings(DEFAULT_SETTINGS);
       setBlockedUsers([]);
+      setIsPublic(true);
       return;
     }
     setLoadingSettings(true);
@@ -24,6 +26,7 @@ export const SettingsProvider = ({ children }) => {
       .then(({ data }) => {
         if (data.settings) setSettings(data.settings);
         if (data.blockedUsers) setBlockedUsers(data.blockedUsers);
+        if (typeof data.isPublic === 'boolean') setIsPublic(data.isPublic);
       })
       .catch(() => {})
       .finally(() => setLoadingSettings(false));
@@ -31,7 +34,8 @@ export const SettingsProvider = ({ children }) => {
 
   const updateSettings = useCallback(async (updates) => {
     const { data } = await updateSettingsApi(updates);
-    setSettings(data.settings);
+    if (data.settings) setSettings(data.settings);
+    if (typeof data.isPublic === 'boolean') setIsPublic(data.isPublic);
   }, []);
 
   const blockUser = useCallback(async (userId) => {
@@ -55,7 +59,7 @@ export const SettingsProvider = ({ children }) => {
 
   return (
     <SettingsContext.Provider
-      value={{ settings, blockedUsers, loadingSettings, updateSettings, blockUser, unblockUser, isBlocked }}
+      value={{ settings, blockedUsers, isPublic, loadingSettings, updateSettings, blockUser, unblockUser, isBlocked }}
     >
       {children}
     </SettingsContext.Provider>

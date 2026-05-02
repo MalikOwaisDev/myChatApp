@@ -1,7 +1,7 @@
 @use "../abstracts/variables" as v;
 @use "../abstracts/mixins" as m;
 
-// ─── Bell Button ──────────────────────────────────────────────────────────────
+// ─── Bell ─────────────────────────────────────────────────────────────────────
 .notif-bell {
   position: relative;
 
@@ -10,7 +10,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-btn-secondary);
     border: 1px solid v.$color-border;
     @include m.flex-center;
     cursor: pointer;
@@ -24,15 +24,15 @@
     }
 
     &:hover {
-      background: rgba(139, 92, 246, 0.1);
-      border-color: rgba(139, 92, 246, 0.25);
-      svg { stroke: v.$color-primary; }
+      background: rgba(var(--accent-rgb), 0.10);
+      border-color: rgba(var(--accent-rgb), 0.28);
+      svg { stroke: v.$color-text-link; }
     }
 
     &[aria-expanded="true"] {
-      background: rgba(139, 92, 246, 0.12);
-      border-color: rgba(139, 92, 246, 0.3);
-      svg { stroke: v.$color-primary; }
+      background: rgba(var(--accent-rgb), 0.12);
+      border-color: rgba(var(--accent-rgb), 0.32);
+      svg { stroke: v.$color-text-link; }
     }
   }
 
@@ -50,7 +50,7 @@
     font-weight: 800;
     @include m.flex-center;
     line-height: 1;
-    border: 2px solid v.$color-bg-deep;
+    border: 2px solid var(--bg-base);
     animation: badgePop 0.2s ease;
   }
 }
@@ -66,12 +66,12 @@
   top: calc(100% + 0.5rem);
   right: 0;
   width: 320px;
-  background: rgba(10, 14, 32, 0.97);
+  background: var(--notif-bg);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid v.$color-border;
   border-radius: v.$radius-lg;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.40), 0 0 0 1px rgba(255, 255, 255, 0.03);
   overflow: hidden;
   animation: notifPanelIn 0.15s ease;
   z-index: 200;
@@ -103,8 +103,7 @@
     font-family: inherit;
     padding: 0;
     transition: color v.$transition-fast;
-
-    &:hover { color: v.$color-primary; }
+    &:hover { color: v.$color-text-link; }
   }
 
   &__list {
@@ -113,10 +112,7 @@
 
     &::-webkit-scrollbar { width: 4px; }
     &::-webkit-scrollbar-track { background: transparent; }
-    &::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 2px;
-    }
+    &::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
   }
 
   &__empty {
@@ -132,7 +128,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-// ─── Notification Item ────────────────────────────────────────────────────────
+// ─── Item ─────────────────────────────────────────────────────────────────────
 .notif-item {
   display: flex;
   align-items: flex-start;
@@ -142,17 +138,14 @@
   transition: background v.$transition-fast;
 
   &:last-child { border-bottom: none; }
-  &:hover { background: rgba(255, 255, 255, 0.02); }
+  &:hover { background: var(--bg-hover); }
 
   &--clickable {
     cursor: pointer;
     width: 100%;
     text-align: left;
     outline: none;
-
-    &:hover {
-      background: rgba(139, 92, 246, 0.06);
-    }
+    &:hover { background: rgba(var(--accent-rgb), 0.05); }
   }
 
   &__icon {
@@ -169,31 +162,27 @@
   &--success &__icon {
     background: rgba(52, 211, 153, 0.12);
     color: v.$color-success;
-    border: 1px solid rgba(52, 211, 153, 0.2);
+    border: 1px solid rgba(52, 211, 153, 0.22);
   }
-
   &--error &__icon {
     background: v.$color-error-bg;
     color: v.$color-error;
     border: 1px solid v.$color-error-border;
   }
-
   &--info &__icon {
-    background: rgba(99, 102, 241, 0.1);
-    color: #a5b4fc;
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    background: rgba(var(--accent-rgb), 0.10);
+    color: #60A5FA;
+    border: 1px solid rgba(var(--accent-rgb), 0.22);
   }
-
   &--warning &__icon {
-    background: rgba(251, 191, 36, 0.1);
-    color: #fde68a;
-    border: 1px solid rgba(251, 191, 36, 0.2);
+    background: rgba(251, 191, 36, 0.10);
+    color: #FDE68A;
+    border: 1px solid rgba(251, 191, 36, 0.22);
   }
-
   &--message &__icon {
-    background: rgba(139, 92, 246, 0.1);
-    color: v.$color-primary;
-    border: 1px solid rgba(139, 92, 246, 0.2);
+    background: rgba(var(--accent-rgb), 0.10);
+    color: v.$color-text-link;
+    border: 1px solid rgba(var(--accent-rgb), 0.22);
   }
 
   &__arrow {

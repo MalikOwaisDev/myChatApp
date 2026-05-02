@@ -15,15 +15,22 @@ export default defineConfig({
   },
 
   build: {
-    outDir: 'dist',
+    outDir: '../server/public',
+    emptyOutDir: true,
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          socket: ['socket.io-client'],
-          http: ['axios'],
+        manualChunks(id) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router-dom')) {
+            return 'vendor';
+          }
+          if (id.includes('node_modules/socket.io-client')) {
+            return 'socket';
+          }
+          if (id.includes('node_modules/axios')) {
+            return 'http';
+          }
         },
       },
     },
